@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenvixa PDF - 100% Free Image to PDF Converter</title>
+  <meta name="description" content="Convert your images (JPG, PNG, WebP, SVG, BMP) to high-quality PDF files completely free, private, and unlimited in your browser with Zenvixa PDF.">
+  
+  <!-- Favicon & Brand Meta -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <meta property="og:image" content="logo.png">
+  <meta property="og:title" content="Zenvixa PDF - 100% Free Image to PDF Tool">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+              950: '#1e1b4b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- SortableJS for Drag-and-Drop Reordering -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+  <!-- jsPDF for Client-side PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- PDF.js for Custom Themed In-App PDF Rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
+
+  <!-- Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="logo.png" alt="Zenvixa Logo" class="w-10 h-10 rounded-xl object-contain shadow-md shadow-brand-500/20 transition-transform hover:scale-105 duration-200">
+        <div>
+          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-violet-600 bg-clip-text text-transparent dark:from-white dark:via-slate-200 dark:to-brand-300">Zenvixa PDF</span>
+          <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">100% Free</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- What's New / Daily Updates Button -->
+        <button id="changelogBtn" class="inline-flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 border border-brand-500/30 transition-colors">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1 text-brand-500"></i> What's New ✨
+        </button>
+
+        <div class="hidden md:flex items-center text-xs font-medium text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 mr-1.5"></i>
+          100% Private (No server uploads)
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" aria-label="Toggle theme" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+          <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Hero / Intro -->
+    <div class="text-center max-w-2xl mx-auto mb-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+        Turn your images into <span class="bg-gradient-to-r from-brand-400 to-violet-400 bg-clip-text text-transparent">PDFs instantly</span>
+      </h1>
+      <p class="text-sm sm:text-base text-slate-400">
+        Completely free, client-side, unlimited conversions. Reorder pages, customize margins, rotate images, and download your PDF in seconds.
+      </p>
+    </div>
+
+    <!-- Upload Dropzone (always visible) -->
+    <div id="dropzone" class="relative group cursor-pointer border-2 border-dashed border-slate-700 hover:border-brand-500 bg-slate-800/40 hover:bg-slate-800/70 rounded-2xl p-8 sm:p-12 text-center transition-all duration-200 shadow-xl">
+      <input type="file" id="fileInput" multiple accept="image/*,.heic,.heif" class="hidden">
+      
+      <div class="flex flex-col items-center justify-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 p-2 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-brand-500/10">
+          <img src="logo.png" alt="Zenvixa Logo" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <p class="text-lg font-semibold text-white">
+            Drag & drop images here, or <span class="text-brand-400 underline decoration-brand-400/50 hover:decoration-brand-400">browse files</span>
+          </p>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Supports JPG, PNG, WebP, SVG, GIF, BMP &bull; Paste directly with <kbd class="px-2 py-0.5 text-xs bg-slate-700/80 rounded border border-slate-600 font-mono text-slate-300">Ctrl + V</kbd>
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-center pt-2">
+          <span class="inline-flex items-center text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700/60">
+            <i data-lucide="check" class="w-3 h-3 text-emerald-400 mr-1"></i> No file size limits
+          </span>
+          <span class="inline-flex items-center text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700/60">
+            <i data-lucide="check" class="w-3 h-3 text-emerald-400 mr-1"></i> No sign-up required
+          </span>
+          <span class="inline-flex items-center text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700/60">
+            <i data-lucide="check" class="w-3 h-3 text-emerald-400 mr-1"></i> 100% in-browser processing
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workspace View (Visible after images are uploaded) -->
+    <div id="workspaceSection" class="hidden mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <!-- Left 2 Cols: Image Grid and Toolbar -->
+      <div class="lg:col-span-2 space-y-4">
+        
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl">
+          <div class="flex items-center space-x-2">
+            <span id="fileCountBadge" class="text-sm font-semibold text-white bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-lg">
+              0 images
+            </span>
+            <span id="totalSizeBadge" class="text-xs text-slate-400 hidden sm:inline">
+              (0 KB total)
+            </span>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <button id="addMoreBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+              <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> Add More
+            </button>
+            <button id="toolbarPreviewBtn" class="inline-flex items-center text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg shadow-sm transition-colors" title="Instant Document Preview">
+              <i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i> Preview PDF
+            </button>
+            <button id="sortAzBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors" title="Sort by File Name (A to Z)">
+              <i data-lucide="arrow-down-az" class="w-3.5 h-3.5 mr-1"></i> A-Z
+            </button>
+            <button id="reverseBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors" title="Reverse order of pages">
+              <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 mr-1"></i> Reverse
+            </button>
+            <button id="rotateAllBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors" title="Rotate all images 90° clockwise">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5 mr-1"></i> Rotate All
+            </button>
+            <button id="clearAllBtn" class="inline-flex items-center text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg transition-colors">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1"></i> Clear All
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+          <span class="flex items-center">
+            <i data-lucide="grip-vertical" class="w-4 h-4 mr-1 text-slate-500"></i>
+            Drag cards to reorder PDF pages
+          </span>
+          <span id="reorderTip" class="hidden sm:inline text-slate-500">Page numbers update automatically</span>
+        </div>
+
+        <!-- Sortable Images Grid -->
+        <div id="imagesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 min-h-[160px] pb-6">
+          <!-- Image cards injected dynamically here -->
+        </div>
+      </div>
+
+      <!-- Right 1 Col: Settings & Convert Action -->
+      <div class="space-y-6 sticky top-24">
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 shadow-xl space-y-5">
+          <h2 class="text-base font-semibold text-white flex items-center">
+            <i data-lucide="sliders" class="w-4 h-4 text-brand-400 mr-2"></i> PDF Configuration
+          </h2>
+
+          <!-- Page Sizing -->
+          <div>
+            <label for="pageSizeSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Page Sizing Mode</label>
+            <select id="pageSizeSelect" class="w-full bg-slate-900 border border-brand-500 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500">
+              <option value="fit" selected>Fit to Image (Exact Size &bull; No Borders) ⭐ Recommended</option>
+              <option value="a4">A4 Document (210 × 297 mm)</option>
+              <option value="letter">US Letter (8.5 × 11 in)</option>
+              <option value="a3">A3 Document (297 × 420 mm)</option>
+              <option value="legal">US Legal (8.5 × 14 in)</option>
+            </select>
+            <p id="fitExplanation" class="text-[11px] text-emerald-400 mt-1.5 flex items-center">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1 flex-shrink-0"></i>
+              <span>Direct conversion: Zero borders, zero padding, 100% full image.</span>
+            </p>
+          </div>
+
+          <!-- Page Orientation (Only shown when a fixed paper size is chosen) -->
+          <div id="orientationContainer" class="hidden">
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Page Orientation</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-orientation="auto" class="orientation-btn active flex flex-col items-center justify-center p-2 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-300 text-xs font-medium">
+                <i data-lucide="wand-2" class="w-4 h-4 mb-1"></i> Auto
+              </button>
+              <button type="button" data-orientation="portrait" class="orientation-btn flex flex-col items-center justify-center p-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                <i data-lucide="file" class="w-4 h-4 mb-1"></i> Portrait
+              </button>
+              <button type="button" data-orientation="landscape" class="orientation-btn flex flex-col items-center justify-center p-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                <i data-lucide="file-minus" class="w-4 h-4 mb-1 rotate-90"></i> Landscape
+              </button>
+            </div>
+          </div>
+
+          <!-- Margins (Only shown when a fixed paper size is chosen) -->
+          <div id="marginContainer" class="hidden">
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Page Margins</label>
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" data-margin="0" class="margin-btn active flex items-center justify-center py-1.5 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-300 text-xs font-medium">
+                None (0)
+              </button>
+              <button type="button" data-margin="5" class="margin-btn flex items-center justify-center py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                5mm
+              </button>
+              <button type="button" data-margin="12" class="margin-btn flex items-center justify-center py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                12mm
+              </button>
+              <button type="button" data-margin="20" class="margin-btn flex items-center justify-center py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                20mm
+              </button>
+            </div>
+          </div>
+
+          <!-- Image Fitting (Only shown for fixed paper sizes) -->
+          <div id="imageFitContainer" class="hidden">
+            <label for="imageFitSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Image Layout</label>
+            <select id="imageFitSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+              <option value="contain" selected>Fit to Page (Maintain Aspect Ratio)</option>
+              <option value="stretch">Fill Entire Page (May Stretch)</option>
+            </select>
+          </div>
+
+          <!-- Page Background Color (Only shown for fixed paper sizes) -->
+          <div id="pageBgContainer" class="hidden">
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Page Background</label>
+            <div class="grid grid-cols-4 gap-2">
+              <button type="button" data-bg="#ffffff" class="bg-color-btn active flex items-center justify-center py-1.5 px-1 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-300 text-xs font-medium">
+                <span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-400 mr-1.5 inline-block"></span> White
+              </button>
+              <button type="button" data-bg="#000000" class="bg-color-btn flex items-center justify-center py-1.5 px-1 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                <span class="w-2.5 h-2.5 rounded-full bg-black border border-slate-600 mr-1.5 inline-block"></span> Black
+              </button>
+              <button type="button" data-bg="#0f172a" class="bg-color-btn flex items-center justify-center py-1.5 px-1 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-500 mr-1.5 inline-block"></span> Dark
+              </button>
+              <div class="flex items-center justify-center relative">
+                <input type="color" id="customBgColorPicker" value="#ffffff" class="w-full h-8 rounded-lg border border-slate-700 bg-slate-900 cursor-pointer p-0.5" title="Pick custom page background color">
+              </div>
+            </div>
+          </div>
+
+          <!-- Compression / Quality -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="qualitySelect" class="text-xs font-medium text-slate-300">Compression Quality</label>
+              <span id="qualityLabel" class="text-xs text-brand-400 font-mono">High (90%)</span>
+            </div>
+            <select id="qualitySelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+              <option value="1.0">Original / Lossless (Largest file)</option>
+              <option value="0.9" selected>High Quality (90% - Recommended)</option>
+              <option value="0.75">Balanced (75% - Good compression)</option>
+              <option value="0.5">Compact (50% - Smallest file size)</option>
+            </select>
+          </div>
+
+          <!-- Color & Document Filters -->
+          <div>
+            <label for="filterSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Color &amp; Document Filter</label>
+            <select id="filterSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+              <option value="none" selected>Original (Natural Colors)</option>
+              <option value="bw-doc">Document Scanner (B&amp;W High Contrast)</option>
+              <option value="grayscale">Grayscale (Clean Monochrome)</option>
+              <option value="boost">Vibrant (Enhanced Contrast)</option>
+            </select>
+          </div>
+
+          <!-- Optional Extras: Page Numbers & Watermark -->
+          <div class="pt-2 border-t border-slate-700/60 space-y-3">
+            <label class="flex items-center cursor-pointer select-none">
+              <input type="checkbox" id="addPageNumbers" class="w-4 h-4 rounded border-slate-700 text-brand-600 bg-slate-900 focus:ring-brand-500">
+              <span class="ml-2.5 text-xs text-slate-300">Add page numbering (e.g. Page 1 of 5)</span>
+            </label>
+
+            <!-- Watermark Toggle & Options -->
+            <label class="flex items-center cursor-pointer select-none">
+              <input type="checkbox" id="addWatermark" class="w-4 h-4 rounded border-slate-700 text-brand-600 bg-slate-900 focus:ring-brand-500">
+              <span class="ml-2.5 text-xs text-slate-300">Add text watermark</span>
+            </label>
+
+            <div id="watermarkControls" class="hidden space-y-2 pl-6 pt-1">
+              <input type="text" id="watermarkText" placeholder="e.g. CONFIDENTIAL or DRAFT" value="CONFIDENTIAL" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Opacity</span>
+                <select id="watermarkOpacity" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-[11px] text-slate-300 focus:outline-none focus:border-brand-500">
+                  <option value="0.15">15% (Subtle)</option>
+                  <option value="0.25" selected>25% (Standard)</option>
+                  <option value="0.45">45% (Bold)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filename -->
+          <div>
+            <label for="pdfFileName" class="block text-xs font-medium text-slate-300 mb-1.5">PDF File Name</label>
+            <div class="relative">
+              <input type="text" id="pdfFileName" value="converted-document" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-12 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+              <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-mono">.pdf</span>
+            </div>
+          </div>
+
+          <!-- Convert & Preview Buttons -->
+          <div class="pt-3 space-y-2.5">
+            <button id="generatePdfBtn" class="w-full bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
+              <i data-lucide="eye" class="w-5 h-5"></i>
+              <span id="generateBtnText">Preview & Convert to PDF</span>
+            </button>
+            <button id="directDownloadBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold py-2.5 px-4 rounded-xl border border-slate-700 hover:border-slate-600 flex items-center justify-center space-x-2 transition-all text-xs">
+              <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+              <span>Instant Download (Skip Preview)</span>
+            </button>
+          </div>
+
+          <!-- Progress Bar (hidden by default) -->
+          <div id="progressContainer" class="hidden space-y-2 pt-2">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span id="progressStatus">Building PDF...</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
+              <div id="progressBar" class="bg-gradient-to-r from-brand-500 to-violet-500 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Feature Guarantee Highlights -->
+    <section class="mt-20 border-t border-slate-800 pt-12 pb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center sm:text-left">
+        <div class="p-5 rounded-xl bg-slate-800/30 border border-slate-800">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-3 mx-auto sm:mx-0">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-semibold text-white mb-1">100% Client-Side Privacy</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Your photos never touch a remote server or database. Conversion is executed entirely in your browser's memory using HTML5 Canvas and jsPDF.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-800/30 border border-slate-800">
+          <div class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center mb-3 mx-auto sm:mx-0">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-semibold text-white mb-1">Unlimited & Forever Free</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            No limits on the number of images, no daily quota, no email signup, and no watermarks placed on your documents.
+          </p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-slate-800/30 border border-slate-800">
+          <div class="w-10 h-10 rounded-lg bg-violet-500/10 text-violet-400 flex items-center justify-center mb-3 mx-auto sm:mx-0">
+            <i data-lucide="move" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-semibold text-white mb-1">Interactive Page Ordering</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Easily reorder pages with drag and drop, rotate individual images 90°, and choose between standard paper sizes or exact original image dimensions.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- High-Resolution Image Lightbox Modal for Instant Image Preview -->
+  <div id="imageLightboxModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-6 h-6 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center">
+            <i data-lucide="image" class="w-3.5 h-3.5"></i>
+          </div>
+          <div>
+            <h4 id="lightboxTitle" class="text-xs font-semibold text-white truncate max-w-xs sm:max-w-md">Image Preview</h4>
+            <p id="lightboxMeta" class="text-[11px] font-mono text-slate-400"></p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="lightboxRotateBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Rotate 90°">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </button>
+          <button id="closeLightboxBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Close Preview">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 bg-slate-950 p-4 overflow-auto flex items-center justify-center">
+        <img id="lightboxImg" src="" alt="Full preview" class="max-h-[70vh] max-w-full object-contain rounded-lg shadow-xl transition-transform duration-200">
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Themed PDF Preview Modal -->
+  <div id="previewModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/95">
+        <div class="flex items-center space-x-3">
+          <img src="logo.png" alt="Zenvixa Logo" class="w-8 h-8 rounded-xl object-contain shadow-sm">
+          <div>
+            <h3 class="text-sm font-semibold text-white">Document Preview</h3>
+            <p id="previewModalSubtext" class="text-xs text-slate-400">1 page • Ready to save</p>
+          </div>
+        </div>
+
+        <!-- Custom Viewer Controls (Navigation & Zoom) -->
+        <div class="flex items-center space-x-1.5 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+          <!-- Page Nav -->
+          <button id="prevPageBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 transition-colors" title="Previous Page">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <span id="pageNavIndicator" class="text-xs font-mono text-slate-300 px-1 select-none">1 / 1</span>
+          <button id="nextPageBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 transition-colors" title="Next Page">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+
+          <div class="h-4 w-px bg-slate-700 mx-1"></div>
+
+          <!-- Zoom -->
+          <button id="zoomOutBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Zoom Out">
+            <i data-lucide="zoom-out" class="w-4 h-4"></i>
+          </button>
+          <span id="zoomIndicator" class="text-xs font-mono text-slate-300 px-1 select-none">100%</span>
+          <button id="zoomInBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Zoom In">
+            <i data-lucide="zoom-in" class="w-4 h-4"></i>
+          </button>
+          <button id="fitWidthBtn" class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Fit to window">
+            Fit
+          </button>
+        </div>
+
+        <!-- Right action buttons -->
+        <div class="flex items-center space-x-2">
+          <button id="modalDownloadBtn" class="inline-flex items-center bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-lg shadow-brand-600/25 transition-all">
+            <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Download PDF
+          </button>
+          <button id="modalCloseBtn" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors" title="Close Preview">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Custom Themed Canvas Container) -->
+      <div id="pdfViewerContainer" class="flex-1 bg-slate-950 p-6 overflow-auto relative flex items-center justify-center">
+        <div id="canvasWrapper" class="relative transition-all duration-150 flex items-center justify-center my-auto">
+          <canvas id="pdfCanvas" class="rounded-lg shadow-2xl border border-slate-800/80 transition-shadow"></canvas>
+        </div>
+        <!-- Loading spinner -->
+        <div id="viewerLoadingSpinner" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/75 hidden">
+          <div class="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-xs text-slate-400 mt-2 font-medium">Rendering PDF page...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Changelog / Daily Updates Modal -->
+  <div id="changelogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200 space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <img src="logo.png" alt="Zenvixa Logo" class="w-8 h-8 rounded-xl object-contain shadow-sm">
+          <div>
+            <h3 class="text-base font-bold text-white">Daily Feature Releases</h3>
+            <p class="text-xs text-slate-400">Zenvixa PDF Automated Updates</p>
+          </div>
+        </div>
+        <button id="closeChangelogBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-1 text-xs">
+        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-white text-sm">Release v1.2 &bull; Active Today</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">Installed</span>
+          </div>
+          <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+            <li><strong>Document Scanner Filter</strong>: Turn camera photos of paperwork, notes, and receipts into crisp, clean B&amp;W document scans.</li>
+            <li><strong>Dual Live Previews Everywhere</strong>: High-resolution card lightbox preview, instant PDF preview in gallery toolbar, and the interactive full-page PDF.js viewer.</li>
+            <li><strong>Text Watermark Tool</strong>: Stamp semi-transparent custom watermarks (CONFIDENTIAL, DRAFT, copyright) diagonally across all pages.</li>
+            <li><strong>One-Click Smart Sorting</strong>: Instant Sort A-Z and Reverse Order in gallery toolbar.</li>
+            <li><strong>White Theme by Default</strong>: Clean high-contrast white aesthetic with seamless dark mode switcher.</li>
+            <li><strong>Automated Daily Schedule</strong>: Cron standing job active every morning to deploy new features.</li>
+          </ul>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-800/30 border border-slate-800 space-y-1.5 text-slate-400">
+          <span class="font-semibold text-slate-300 text-[11px] block">Upcoming Next on Daily Cron:</span>
+          <p>&bull; Client-side PDF Password Protection &amp; AES encryption</p>
+          <p>&bull; Multi-page extraction and batch Zip download</p>
+          <p>&bull; OCR text search layer integration</p>
+        </div>
+      </div>
+
+      <button id="dismissChangelogBtn" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors">
+        Awesome, continue!
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-900/50 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center justify-center space-x-2.5">
+        <img src="logo.png" alt="Zenvixa PDF" class="w-6 h-6 rounded-md object-contain">
+        <span class="font-semibold text-slate-700 dark:text-slate-300">Zenvixa &bull; PDF Tool</span>
+        <span>&mdash; 100% Free &amp; Open Source Image to PDF Converter</span>
+      </div>
+      <p class="flex items-center justify-center">
+        Zero tracking &bull; 100% Client-Side &bull; Works Offline
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
