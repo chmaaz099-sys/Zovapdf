@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zenvixa PDF - 100% Free Image to PDF Converter</title>
-  <meta name="description" content="Convert your images (JPG, PNG, WebP, SVG, BMP) to high-quality PDF files completely free, private, and unlimited in your browser with Zenvixa PDF.">
+  <title>Zova PDF — Everything you need. One PDF workspace.</title>
+  <meta name="description" content="A sleek, modern, minimal black PDF workspace. Convert, scan, crop, secure, and organize PDFs completely inside your browser. 100% private, free, and unlimited.">
   
   <!-- Favicon & Brand Meta -->
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="apple-touch-icon" href="logo.png">
-  <meta property="og:image" content="logo.png">
-  <meta property="og:title" content="Zenvixa PDF - 100% Free Image to PDF Tool">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=5">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png?v=5">
+  <link rel="apple-touch-icon" href="logo.png?v=5">
+  <meta property="og:image" content="logo.png?v=5">
+  <meta property="og:title" content="Zova PDF — One PDF workspace">
+  <meta property="og:description" content="Sleek, private, client-side PDF workspace with 100+ pro tools.">
+  <meta name="theme-color" content="#080808">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,18 +23,16 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              200: '#c7d2fe',
-              300: '#a5b4fc',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              800: '#3730a3',
-              900: '#312e81',
-              950: '#1e1b4b',
+            black: {
+              DEFAULT: '#080808',
+              50: '#141414',
+              100: '#111111',
+              200: '#0D0D0D',
+              900: '#080808',
+            },
+            border: {
+              DEFAULT: '#242424',
+              hover: '#383838'
             }
           }
         }
@@ -51,437 +52,1465 @@
   <!-- PDF.js for Custom Themed In-App PDF Rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
+  <!-- JSZip for Batch Archive Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
+<body class="bg-[#080808] text-[#F5F5F5] min-h-screen flex flex-col antialiased selection:bg-[#333333] selection:text-[#FFFFFF]">
 
-  <!-- Navigation Bar -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 transition-colors">
+  <!-- Header Navigation -->
+  <header class="nav-header sticky top-0 z-40 transition-colors">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <img src="logo.png" alt="Zenvixa Logo" class="w-10 h-10 rounded-xl object-contain shadow-md shadow-brand-500/20 transition-transform hover:scale-105 duration-200">
-        <div>
-          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-brand-600 via-brand-500 to-violet-600 bg-clip-text text-transparent dark:from-white dark:via-slate-200 dark:to-brand-300">Zenvixa PDF</span>
-          <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">100% Free</span>
+      
+      <!-- Left: Logo & Brand Name -->
+      <a href="#" class="flex items-center space-x-3 group">
+        <div class="w-8 h-8 rounded-lg overflow-hidden border border-[#242424] bg-[#000000] flex items-center justify-center p-0.5 group-hover:border-[#383838] transition-colors shadow-sm">
+          <img src="logo.png?v=5" alt="Zova PDF" class="w-full h-full object-contain">
         </div>
-      </div>
+        <span class="text-base font-semibold tracking-tight text-[#F5F5F5]">Zova PDF</span>
+      </a>
 
-      <div class="flex items-center space-x-3">
-        <!-- What's New / Daily Updates Button -->
-        <button id="changelogBtn" class="inline-flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 border border-brand-500/30 transition-colors">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1 text-brand-500"></i> What's New ✨
+      <!-- Center / Right: Desktop Navigation -->
+      <nav class="hidden md:flex items-center space-x-6 text-xs text-[#929292]">
+        
+        <!-- Tools Dropdown Container -->
+        <div class="relative tools-dropdown-container py-4">
+          <button type="button" id="toolsDropdownBtn" class="flex items-center space-x-1 hover:text-[#F5F5F5] transition-colors focus:outline-none">
+            <span>Tools</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div id="toolsDropdownMenu" class="tools-dropdown-menu absolute left-0 top-12 w-[340px] sm:w-[560px] rounded-xl p-3 z-50">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              <!-- Column 1 -->
+              <div class="space-y-1">
+                <div class="text-[10px] font-semibold tracking-wider text-[#666666] uppercase px-2 py-0.5">Layout &amp; Filters</div>
+                
+                <a href="#workspace" data-tool-action="preset-photo-album" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Image to PDF (1:1 Fit)</div>
+                    <div class="text-[9px] text-[#929292]">Pure Borderless Conversion</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="preset-doc-scanner" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="scan" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Document Scanner</div>
+                    <div class="text-[9px] text-[#929292]">B&amp;W Shadow Removal Filter</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-grayscale" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="contrast" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Grayscale Monochrome</div>
+                    <div class="text-[9px] text-[#929292]">8-Bit Archival Laser Print</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-invert" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="sun-moon" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Inverted Dark Mode PDF</div>
+                    <div class="text-[9px] text-[#929292]">Blueprint &amp; Night Viewing</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-contrast-boost" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Receipt &amp; Contrast Boost</div>
+                    <div class="text-[9px] text-[#929292]">Restore Faded Thermal Paper</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="preset-receipts-2up" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Multi-Up Grids (2-Up &amp; 4-Up)</div>
+                    <div class="text-[9px] text-[#929292]">Receipts &amp; Contact Sheets</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-idcard-layout" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="credit-card" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">ID Card &amp; Passport Layout</div>
+                    <div class="text-[9px] text-[#929292]">CR80 Double-Sided Alignment</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="open-cropper-guide" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="crop" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Visual Image Cropper</div>
+                    <div class="text-[9px] text-[#929292]">Freeform, 1:1, 4:3, 16:9, A4</div>
+                  </div>
+                </a>
+              </div>
+
+              <!-- Column 2 -->
+              <div class="space-y-1">
+                <div class="text-[10px] font-semibold tracking-wider text-[#666666] uppercase px-2 py-0.5">Security, Stamps &amp; Tools</div>
+
+                <a href="#workspace" data-tool-action="focus-security" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">PDF Password Encryption</div>
+                    <div class="text-[9px] text-[#929292]">AES Protection Before Download</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="focus-signature" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Digital Signature Pad</div>
+                    <div class="text-[9px] text-[#929292]">Draw &amp; Stamp Signatures</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-bates-stamping" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="hash" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Bates Sequential Stamping</div>
+                    <div class="text-[9px] text-[#929292]">Legal DOC-0001 Indexing</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-status-stamps" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Preset Legal Office Stamps</div>
+                    <div class="text-[9px] text-[#929292]">APPROVED, DRAFT, URGENT</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="focus-compression" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="gauge" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Compression &amp; DPI Resampler</div>
+                    <div class="text-[9px] text-[#929292]">300 DPI Archival &amp; 50% Shrink</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-bulk-rotate" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="rotate-cw" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Bulk Page Rotator (90&deg;)</div>
+                    <div class="text-[9px] text-[#929292]">Batch Clockwise Rotation</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="tool-strip-exif" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="eye-off" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Camera EXIF Sanitizer</div>
+                    <div class="text-[9px] text-[#929292]">Strip GPS &amp; Device Identifiers</div>
+                  </div>
+                </a>
+
+                <a href="#workspace" data-tool-action="trigger-zip" class="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] transition-colors">
+                  <i data-lucide="archive" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <div>
+                    <div class="font-medium text-[11px]">Batch ZIP Archive Export</div>
+                    <div class="text-[9px] text-[#929292]">Export Processed JPEGs in 1 Click</div>
+                  </div>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <a href="#tools" class="hover:text-[#F5F5F5] transition-colors">Explore</a>
+        <a href="#features" class="hover:text-[#F5F5F5] transition-colors">Features</a>
+        <button type="button" id="featuresHubBtn" class="hover:text-[#F5F5F5] transition-colors flex items-center space-x-1">
+          <span>All 100+ Tools</span>
+        </button>
+        <button type="button" id="changelogBtn" class="hover:text-[#F5F5F5] transition-colors">
+          Changelog
+        </button>
+      </nav>
+
+      <!-- Right: Action Buttons -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button type="button" id="openCommandPaletteBtn" class="hidden sm:inline-flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-[#111111] hover:bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-all text-xs focus:outline-none" title="Quick Search (Ctrl + K)">
+          <i data-lucide="search" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">Search</span>
+          <kbd class="px-1.5 py-0.5 text-[10px] font-mono bg-[#161616] border border-[#242424] rounded text-[#888888]">⌘K</kbd>
         </button>
 
-        <div class="hidden md:flex items-center text-xs font-medium text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 mr-1.5"></i>
-          100% Private (No server uploads)
-        </div>
+        <button type="button" id="loadSampleImagesBtn" class="hidden sm:inline-flex items-center text-xs font-medium px-3 py-1.5 rounded-lg bg-[#111111] hover:bg-[#161616] text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-all">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1.5 text-[#929292]"></i>
+          <span>Try Demo</span>
+        </button>
+        
+        <a href="#workspace" class="inline-flex items-center text-xs font-semibold px-3.5 py-1.5 rounded-lg bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] transition-all">
+          <span>Workspace</span>
+        </a>
 
-        <!-- Theme Toggle -->
-        <button id="themeToggleBtn" aria-label="Toggle theme" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-          <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-          <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        <!-- Mobile Menu Toggle -->
+        <button type="button" id="mobileMenuBtn" aria-label="Toggle Navigation" class="md:hidden p-2 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#111111] border border-transparent hover:border-[#242424] transition-colors">
+          <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
       </div>
+
+    </div>
+
+    <!-- Mobile Dropdown Navigation -->
+    <div id="mobileMenu" class="hidden md:hidden px-4 py-3 border-t border-[#242424] space-y-2 text-xs">
+      <div class="text-[10px] uppercase font-semibold text-[#666666] tracking-wider px-2">Navigation</div>
+      <a href="#tools" class="mobile-nav-link block px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5]">Explore Tools</a>
+      <a href="#workspace" class="mobile-nav-link block px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5]">Workspace</a>
+      <a href="#features" class="mobile-nav-link block px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5]">Features &amp; Privacy</a>
+      <button type="button" id="mobileFeaturesHubBtn" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] flex items-center justify-between">
+        <span>100+ Features Directory</span>
+        <i data-lucide="layers" class="w-3.5 h-3.5 text-[#929292]"></i>
+      </button>
+      <button type="button" id="mobileChangelogBtn" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#161616] text-[#F5F5F5] flex items-center justify-between">
+        <span>Release Changelog</span>
+        <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#929292]"></i>
+      </button>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Hero / Intro -->
-    <div class="text-center max-w-2xl mx-auto mb-8">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-        Turn your images into <span class="bg-gradient-to-r from-brand-400 to-violet-400 bg-clip-text text-transparent">PDFs instantly</span>
+  <!-- Main Content -->
+  <main class="flex-1 w-full">
+
+    <!-- 1. Hero Section -->
+    <section class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-12 sm:pb-16 text-center bg-grid-mesh">
+      
+      <!-- Eyebrow Badge -->
+      <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#111111] hover:bg-[#161616] border border-[#242424] hover:border-[#383838] text-[11px] font-semibold tracking-wider text-[#929292] uppercase mb-6 transition-all cursor-pointer shadow-sm" id="heroAnnouncementBadge">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#A7F3D0] animate-pulse"></span>
+        <span class="text-[#F5F5F5]">YOUR PDF WORKSPACE</span>
+        <span class="text-[#666666]">&bull;</span>
+        <span class="text-[10px] text-[#A3A3A3]">29 PRO TOOLS</span>
+        <i data-lucide="chevron-right" class="w-3 h-3 text-[#666666]"></i>
+      </div>
+
+      <!-- Large Headline -->
+      <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-[#F5F5F5] mb-5 leading-[1.12]">
+        Everything you need. <br class="hidden sm:inline">
+        One PDF workspace.
       </h1>
-      <p class="text-sm sm:text-base text-slate-400">
-        Completely free, client-side, unlimited conversions. Reorder pages, customize margins, rotate images, and download your PDF in seconds.
+
+      <!-- Supporting Text -->
+      <p class="text-base sm:text-lg text-[#929292] max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
+        Convert, scan, crop, secure, and organize PDFs effortlessly in your web browser. 100% private, zero server uploads, and unlimited processing.
       </p>
-    </div>
 
-    <!-- Upload Dropzone (always visible) -->
-    <div id="dropzone" class="relative group cursor-pointer border-2 border-dashed border-slate-700 hover:border-brand-500 bg-slate-800/40 hover:bg-slate-800/70 rounded-2xl p-8 sm:p-12 text-center transition-all duration-200 shadow-xl">
-      <input type="file" id="fileInput" multiple accept="image/*,.heic,.heif" class="hidden">
-      
-      <div class="flex flex-col items-center justify-center space-y-4">
-        <div class="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 p-2 flex items-center justify-center group-hover:scale-110 transition-transform duration-200 shadow-lg shadow-brand-500/10">
-          <img src="logo.png" alt="Zenvixa Logo" class="w-full h-full object-contain">
-        </div>
-        <div>
-          <p class="text-lg font-semibold text-white">
-            Drag & drop images here, or <span class="text-brand-400 underline decoration-brand-400/50 hover:decoration-brand-400">browse files</span>
-          </p>
-          <p class="text-xs sm:text-sm text-slate-400 mt-1">
-            Supports JPG, PNG, WebP, SVG, GIF, BMP &bull; Paste directly with <kbd class="px-2 py-0.5 text-xs bg-slate-700/80 rounded border border-slate-600 font-mono text-slate-300">Ctrl + V</kbd>
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-2 justify-center pt-2">
-          <span class="inline-flex items-center text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700/60">
-            <i data-lucide="check" class="w-3 h-3 text-emerald-400 mr-1"></i> No file size limits
-          </span>
-          <span class="inline-flex items-center text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700/60">
-            <i data-lucide="check" class="w-3 h-3 text-emerald-400 mr-1"></i> No sign-up required
-          </span>
-          <span class="inline-flex items-center text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700/60">
-            <i data-lucide="check" class="w-3 h-3 text-emerald-400 mr-1"></i> 100% in-browser processing
-          </span>
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mb-14">
+        <a href="#tools" class="inline-flex items-center justify-center text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-lg bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] transition-all">
+          <span>Explore PDF Tools</span>
+          <i data-lucide="arrow-down" class="w-4 h-4 ml-1.5"></i>
+        </a>
+        <a href="#features" class="inline-flex items-center justify-center text-xs sm:text-sm font-medium px-5 py-2.5 rounded-lg bg-[#111111] hover:bg-[#161616] text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-all">
+          <span>Learn More</span>
+        </a>
+      </div>
+
+      <!-- Subtle Dark Visual Element (Minimalist PDF Canvas Representation) -->
+      <div class="max-w-3xl mx-auto rounded-xl p-1 bg-gradient-to-b from-[#242424] to-transparent">
+        <div class="bg-[#0D0D0D] border border-[#242424] rounded-lg p-5 sm:p-7 text-left shadow-2xl relative overflow-hidden">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-[#242424]">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#242424]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#242424]"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#242424]"></span>
+              <img src="logo.png?v=5" alt="Zova PDF" class="w-4 h-4 rounded-sm object-contain ml-2">
+              <span class="ml-1.5 text-xs font-mono text-[#929292]">zova-pdf-workspace.pdf</span>
+            </div>
+            <span class="text-[10px] font-mono text-[#666666] uppercase tracking-wider">Client-Side Memory</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-5 text-xs">
+            <div class="bg-[#111111] border border-[#242424] p-3 rounded-lg">
+              <span class="text-[10px] text-[#666666] uppercase block font-mono">Layout</span>
+              <span class="text-[#F5F5F5] font-medium mt-0.5 block">1:1 Borderless Fit</span>
+            </div>
+            <div class="bg-[#111111] border border-[#242424] p-3 rounded-lg">
+              <span class="text-[10px] text-[#666666] uppercase block font-mono">Privacy</span>
+              <span class="text-[#F5F5F5] font-medium mt-0.5 block">0 Server Calls</span>
+            </div>
+            <div class="bg-[#111111] border border-[#242424] p-3 rounded-lg">
+              <span class="text-[10px] text-[#666666] uppercase block font-mono">Engine</span>
+              <span class="text-[#F5F5F5] font-medium mt-0.5 block">HTML5 Canvas &amp; jsPDF</span>
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
 
-    <!-- Workspace View (Visible after images are uploaded) -->
-    <div id="workspaceSection" class="hidden mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    </section>
+
+    <!-- 2. Tools Section -->
+    <section id="tools" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[#242424]">
       
-      <!-- Left 2 Cols: Image Grid and Toolbar -->
-      <div class="lg:col-span-2 space-y-4">
+      <!-- Section Header -->
+      <div class="max-w-2xl mb-8">
+        <span class="text-[11px] font-semibold text-[#929292] uppercase tracking-widest block mb-2 font-mono">CORE CAPABILITIES &bull; 29 ACTIVE TOOLS</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">29 Pro PDF Tools &bull; 100% Free In-Browser Workspace</h2>
+        <p class="text-xs sm:text-sm text-[#929292] mt-2">
+          Select any tool below to launch its configuration directly inside your browser. Instant client-side execution with zero cloud storage.
+        </p>
+      </div>
+
+      <!-- Tool Categories Filter & Live Search Bar -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-8">
+        <!-- Category Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none" id="toolCategoryTabs">
+          <button type="button" class="tool-tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all" data-category="all">
+            All <span class="ml-1 text-[10px] text-[#777] font-mono">(29)</span>
+          </button>
+          <button type="button" class="tool-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all" data-category="layout">
+            Layout &amp; Grids <span class="ml-1 text-[10px] text-[#777] font-mono">(9)</span>
+          </button>
+          <button type="button" class="tool-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all" data-category="filters">
+            Filters &amp; Scanner <span class="ml-1 text-[10px] text-[#777] font-mono">(5)</span>
+          </button>
+          <button type="button" class="tool-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all" data-category="security">
+            Security &amp; Signing <span class="ml-1 text-[10px] text-[#777] font-mono">(4)</span>
+          </button>
+          <button type="button" class="tool-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all" data-category="stamps">
+            Stamps &amp; Numbers <span class="ml-1 text-[10px] text-[#777] font-mono">(4)</span>
+          </button>
+          <button type="button" class="tool-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all" data-category="optimize">
+            Optimization &amp; Export <span class="ml-1 text-[10px] text-[#777] font-mono">(7)</span>
+          </button>
+        </div>
+
+        <!-- Search Box -->
+        <div class="relative w-full md:w-72">
+          <i data-lucide="search" class="w-4 h-4 text-[#666666] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          <input type="text" id="toolSearchInput" placeholder="Filter 29 tools (or press ⌘K)..." class="w-full bg-[#111111] text-[#F5F5F5] placeholder-[#666666] text-xs pl-9 pr-14 py-2 rounded-lg border border-[#242424] focus:outline-none focus:border-[#484848] transition-colors">
+          <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+            <kbd class="text-[9px] font-mono bg-[#1A1A1A] text-[#888888] border border-[#2E2E2E] px-1.5 py-0.5 rounded">⌘K</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools Grid -->
+      <div id="toolsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         
-        <!-- Toolbar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 border border-slate-700/60 p-4 rounded-xl">
-          <div class="flex items-center space-x-2">
-            <span id="fileCountBadge" class="text-sm font-semibold text-white bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-lg">
-              0 images
-            </span>
-            <span id="totalSizeBadge" class="text-xs text-slate-400 hidden sm:inline">
-              (0 KB total)
-            </span>
+        <!-- Tool 1: Image to PDF (1:1 Fit) -->
+        <a href="#workspace" data-tool-action="preset-photo-album" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
           </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Image to PDF (1:1 Fit)</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Convert photos to high-quality PDF files matching original image dimensions with zero borders.
+          </p>
+        </a>
 
-          <div class="flex items-center space-x-2">
-            <button id="addMoreBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors">
-              <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> Add More
-            </button>
-            <button id="toolbarPreviewBtn" class="inline-flex items-center text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg shadow-sm transition-colors" title="Instant Document Preview">
-              <i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i> Preview PDF
-            </button>
-            <button id="sortAzBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors" title="Sort by File Name (A to Z)">
-              <i data-lucide="arrow-down-az" class="w-3.5 h-3.5 mr-1"></i> A-Z
-            </button>
-            <button id="reverseBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors" title="Reverse order of pages">
-              <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 mr-1"></i> Reverse
-            </button>
-            <button id="rotateAllBtn" class="inline-flex items-center text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition-colors" title="Rotate all images 90° clockwise">
-              <i data-lucide="rotate-cw" class="w-3.5 h-3.5 mr-1"></i> Rotate All
-            </button>
-            <button id="clearAllBtn" class="inline-flex items-center text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-1.5 rounded-lg transition-colors">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1"></i> Clear All
-            </button>
+        <!-- Tool 2: Document Scanner Filter -->
+        <a href="#workspace" data-tool-action="preset-doc-scanner" data-tool-category="filters" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="scan" class="w-4 h-4"></i>
           </div>
-        </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Document Scanner</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Clean up phone snapshots of paperwork, notes, and receipts with shadow-removal thresholding.
+          </p>
+        </a>
 
-        <div class="flex items-center justify-between text-xs text-slate-400 px-1">
-          <span class="flex items-center">
-            <i data-lucide="grip-vertical" class="w-4 h-4 mr-1 text-slate-500"></i>
-            Drag cards to reorder PDF pages
-          </span>
-          <span id="reorderTip" class="hidden sm:inline text-slate-500">Page numbers update automatically</span>
-        </div>
+        <!-- Tool 3: Multi-Up Page Grids -->
+        <a href="#workspace" data-tool-action="preset-receipts-2up" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Multi-Up Grids (2-Up &amp; 4-Up)</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Place multiple images on a single page, perfect for receipts, contact sheets, and expense reports.
+          </p>
+        </a>
 
-        <!-- Sortable Images Grid -->
-        <div id="imagesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 min-h-[160px] pb-6">
-          <!-- Image cards injected dynamically here -->
+        <!-- Tool 4: Visual Image Cropper -->
+        <a href="#workspace" data-tool-action="open-cropper-guide" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="crop" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Visual Image Cropper</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Crop any uploaded image with Freeform, 1:1 Square, 4:3, 16:9, or A4 Document ratio presets.
+          </p>
+        </a>
+
+        <!-- Tool 5: PDF Password & Encryption -->
+        <a href="#workspace" data-tool-action="focus-security" data-tool-category="security" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">PDF Password Protection</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Encrypt your compiled document with client-side password protection before saving.
+          </p>
+        </a>
+
+        <!-- Tool 6: Digital Signature Pad -->
+        <a href="#workspace" data-tool-action="focus-signature" data-tool-category="security" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="pen-tool" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Digital Signature Pad</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Draw your signature with mouse or touchscreen and stamp it cleanly onto document pages.
+          </p>
+        </a>
+
+        <!-- Tool 7: Watermarks, Headers & Stamps -->
+        <a href="#workspace" data-tool-action="preset-confidential" data-tool-category="stamps" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="stamp" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Watermarks &amp; Stamps</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Stamp diagonal or repeating tile text watermarks, page numbering, and date stamps.
+          </p>
+        </a>
+
+        <!-- Tool 8: Compression & DPI Engine -->
+        <a href="#workspace" data-tool-action="focus-compression" data-tool-category="optimize" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="gauge" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Compression &amp; Target DPI</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Choose quality tiers and 72 / 150 / 300 DPI modes with live output size estimation.
+          </p>
+        </a>
+
+        <!-- Tool 9: Batch Export to ZIP -->
+        <a href="#workspace" data-tool-action="trigger-zip" data-tool-category="optimize" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="archive" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Batch ZIP Archive</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Package all cropped, rotated, and processed images together into a single ZIP file.
+          </p>
+        </a>
+
+        <!-- Tool 10: Grayscale Monochrome Engine -->
+        <a href="#workspace" data-tool-action="tool-grayscale" data-tool-category="filters" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="contrast" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Grayscale Monochrome</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Convert all document pages to clean 8-bit grayscale for archival filing, laser printing, and ink saving.
+          </p>
+        </a>
+
+        <!-- Tool 11: Inverted / Dark Mode PDF -->
+        <a href="#workspace" data-tool-action="tool-invert" data-tool-category="filters" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="sun-moon" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Inverted Dark Mode PDF</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Invert brightness values for comfortable night-time reading, inverted blueprints, and dark presentations.
+          </p>
+        </a>
+
+        <!-- Tool 12: Faded Receipt & Contrast Booster -->
+        <a href="#workspace" data-tool-action="tool-contrast-boost" data-tool-category="filters" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Receipt &amp; Contrast Booster</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Enhance contrast and brightness curves to recover faint text on thermal receipts and low-light photos.
+          </p>
+        </a>
+
+        <!-- Tool 13: Sepia Vintage Archival Scan -->
+        <a href="#workspace" data-tool-action="tool-sepia" data-tool-category="filters" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="history" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Sepia Vintage Scan</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Apply warm sepia tone processing for historical manuscripts, certificates, and portfolio documentation.
+          </p>
+        </a>
+
+        <!-- Tool 14: ID-1 / CR-80 Double-Sided ID Card Layout -->
+        <a href="#workspace" data-tool-action="tool-idcard-layout" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="credit-card" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">ID Card &amp; Passport Layout</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Place front and back ID cards centered with proper spacing and cutting margins on a single page.
+          </p>
+        </a>
+
+        <!-- Tool 15: Margin & Bleed Studio -->
+        <a href="#workspace" data-tool-action="tool-focus-margins" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Margin &amp; Bleed Studio</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Configure document margins from 0mm pure borderless to 5mm slim, 12mm standard, or 20mm binding gutter.
+          </p>
+        </a>
+
+        <!-- Tool 16: Canvas Background Color Tint -->
+        <a href="#workspace" data-tool-action="tool-canvas-bg" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="palette" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Canvas Background Tint</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Customize the backdrop fill color behind letterboxed images with pure white, dark slate, or custom tint.
+          </p>
+        </a>
+
+        <!-- Tool 17: Bates Stamping & Sequential Numbering -->
+        <a href="#workspace" data-tool-action="tool-bates-stamping" data-tool-category="stamps" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="hash" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Bates Stamping Engine</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Stamp legal and accounting sequential Bates index codes (e.g. DOC-0001) automatically across all pages.
+          </p>
+        </a>
+
+        <!-- Tool 18: Preset Legal & Office Status Stamps -->
+        <a href="#workspace" data-tool-action="tool-status-stamps" data-tool-category="stamps" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Preset Legal &amp; Office Stamps</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Stamp official approval marks: APPROVED, DRAFT, URGENT, CONFIDENTIAL, COPY, or FINAL in 1 click.
+          </p>
+        </a>
+
+        <!-- Tool 19: Dual Header & Footer Metadata Banners -->
+        <a href="#workspace" data-tool-action="tool-header-footer" data-tool-category="stamps" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Header &amp; Footer Banners</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Add synchronized top margin document titles and bottom date, time, and page pagination stamps.
+          </p>
+        </a>
+
+        <!-- Tool 20: Camera EXIF & GPS Sanitizer -->
+        <a href="#workspace" data-tool-action="tool-strip-exif" data-tool-category="security" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="eye-off" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Camera EXIF &amp; GPS Sanitizer</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Strip all camera metadata, lens details, GPS geotags, and device serial numbers for 100% privacy.
+          </p>
+        </a>
+
+        <!-- Tool 21: PDF Metadata & Dublin Core Editor -->
+        <a href="#workspace" data-tool-action="tool-focus-metadata" data-tool-category="security" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="file-cog" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">PDF Metadata &amp; Properties</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Set title, author, subject, and keywords in document properties for professional archiving and search.
+          </p>
+        </a>
+
+        <!-- Tool 22: Target Print DPI Resampler (72 / 150 / 300 DPI) -->
+        <a href="#workspace" data-tool-action="tool-dpi-resampler" data-tool-category="optimize" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Target Print DPI Resampler</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Target print density: 72 DPI for email attachments, 150 DPI for office handouts, or 300 DPI archival print.
+          </p>
+        </a>
+
+        <!-- Tool 23: 5-Stage Compression Shrinker -->
+        <a href="#workspace" data-tool-action="tool-shrink-compress" data-tool-category="optimize" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="minimize-2" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">5-Stage Compression Shrinker</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Shrink document size from Lossless (100%) down to Compact (50%) and Ultra (30%) with live size estimation.
+          </p>
+        </a>
+
+        <!-- Tool 24: Bulk Page Rotator (Rotate All 90°) -->
+        <a href="#workspace" data-tool-action="tool-bulk-rotate" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Bulk Page Rotator (90&deg;)</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Rotate every page in the document 90° clockwise in a single click without editing pages one-by-one.
+          </p>
+        </a>
+
+        <!-- Tool 25: Bulk Page Reverser / Sequence Inverter -->
+        <a href="#workspace" data-tool-action="tool-reverse-order" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="arrow-down-up" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Page Sequence Reverser</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Invert entire page order in 1 click—ideal for inverted ADF scanner feeds (pages 10 &rarr; 1 to 1 &rarr; 10).
+          </p>
+        </a>
+
+        <!-- Tool 26: Alphabetical Auto-Sorter (A → Z) -->
+        <a href="#workspace" data-tool-action="tool-sort-az" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="arrow-up-a-z" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Alphabetical Auto-Sorter</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Sort all uploaded document pages by original file name alphabetically and numerically in 1 click.
+          </p>
+        </a>
+
+        <!-- Tool 27: Page Cloner & Duplicator -->
+        <a href="#workspace" data-tool-action="tool-clone-page" data-tool-category="layout" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Page Cloner &amp; Duplicator</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Duplicate any selected document page in 1 click to create duplicate receipts, forms, or invoice copies.
+          </p>
+        </a>
+
+        <!-- Tool 28: High-Res Single Page Snapshot / Extractor -->
+        <a href="#workspace" data-tool-action="tool-extract-page" data-tool-category="optimize" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="download" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Single Page Snapshot Extractor</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Inspect individual pages at full resolution in the lightbox and export them as standalone clean images.
+          </p>
+        </a>
+
+        <!-- Tool 29: Document Workspace Reset & Clear -->
+        <a href="#workspace" data-tool-action="tool-clear-all" data-tool-category="optimize" class="tool-card p-5 block group">
+          <div class="w-9 h-9 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-3.5 group-hover:border-[#383838] transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] group-hover:text-white transition-colors">Workspace Reset &amp; Clear</h3>
+          <p class="text-xs text-[#929292] mt-1.5 leading-relaxed">
+            Instantly clear loaded images and reset presets to start a fresh new PDF document in 1 click.
+          </p>
+        </a>
+
+      </div>
+
+      <!-- No Results State -->
+      <div id="noToolsFound" class="hidden text-center py-12 px-4 rounded-xl border border-[#242424] bg-[#0D0D0D] mt-4">
+        <i data-lucide="search-x" class="w-8 h-8 mx-auto text-[#666666] mb-3"></i>
+        <h4 class="text-sm font-semibold text-[#F5F5F5]">No matching tools found</h4>
+        <p class="text-xs text-[#929292] mt-1 max-w-sm mx-auto">Try searching for keywords like "scanner", "watermark", "encrypt", "bates", or "crop".</p>
+        <button type="button" id="resetToolFiltersBtn" class="mt-4 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-[#202020] text-xs font-medium text-[#F5F5F5] border border-[#242424] transition-colors">Reset Filters</button>
+      </div>
+
+    </section>
+
+    <!-- 3. Main Studio Workspace Section -->
+    <section id="workspace" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[#242424]">
+      
+      <!-- Studio Header -->
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <span class="text-[11px] font-semibold text-[#929292] uppercase tracking-widest block mb-1 font-mono">STUDIO WORKSPACE</span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">Image to PDF Studio</h2>
+          <p class="text-xs text-[#929292] mt-1">Upload your images below or pick a preset to begin.</p>
         </div>
       </div>
 
-      <!-- Right 1 Col: Settings & Convert Action -->
-      <div class="space-y-6 sticky top-24">
-        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 shadow-xl space-y-5">
-          <h2 class="text-base font-semibold text-white flex items-center">
-            <i data-lucide="sliders" class="w-4 h-4 text-brand-400 mr-2"></i> PDF Configuration
-          </h2>
+      <!-- 1-Click Workflow Presets Bar -->
+      <div class="mb-6 bg-[#0D0D0D] border border-[#242424] rounded-xl p-3 sm:p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex items-center space-x-2 text-xs font-semibold text-[#F5F5F5]">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-[#929292]"></i>
+            <span>1-Click Presets:</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <button type="button" data-preset="photo-album" class="preset-pill px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="image" class="w-3.5 h-3.5"></i>
+              <span>Photo Album (1:1 Fit)</span>
+            </button>
+            <button type="button" data-preset="doc-scanner" class="preset-pill px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="scan" class="w-3.5 h-3.5"></i>
+              <span>Document Scanner</span>
+            </button>
+            <button type="button" data-preset="receipts-2up" class="preset-pill px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+              <span>Receipts (2-Up Grid)</span>
+            </button>
+            <button type="button" data-preset="confidential" class="preset-pill px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="stamp" class="w-3.5 h-3.5"></i>
+              <span>Confidential Watermark</span>
+            </button>
+            <button type="button" data-preset="id-card" class="preset-pill px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+              <span>ID / Business Cards</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-          <!-- Page Sizing -->
+      <!-- Upload Dropzone (always visible) -->
+      <div id="dropzone" class="relative group cursor-pointer p-8 sm:p-14 text-center">
+        <input type="file" id="fileInput" multiple accept="image/*,.heic,.heif,.svg,.bmp" class="hidden">
+        
+        <div class="flex flex-col items-center justify-center space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-[#000000] border border-[#242424] p-2 flex items-center justify-center group-hover:border-[#444444] transition-all relative shadow-sm">
+            <img src="logo.png?v=5" alt="Zova PDF" class="w-full h-full object-contain">
+          </div>
           <div>
-            <label for="pageSizeSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Page Sizing Mode</label>
-            <select id="pageSizeSelect" class="w-full bg-slate-900 border border-brand-500 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-brand-500">
-              <option value="fit" selected>Fit to Image (Exact Size &bull; No Borders) ⭐ Recommended</option>
-              <option value="a4">A4 Document (210 × 297 mm)</option>
-              <option value="letter">US Letter (8.5 × 11 in)</option>
-              <option value="a3">A3 Document (297 × 420 mm)</option>
-              <option value="legal">US Legal (8.5 × 14 in)</option>
-            </select>
-            <p id="fitExplanation" class="text-[11px] text-emerald-400 mt-1.5 flex items-center">
-              <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1 flex-shrink-0"></i>
-              <span>Direct conversion: Zero borders, zero padding, 100% full image.</span>
+            <p class="text-base font-semibold text-[#F5F5F5]">
+              Drag &amp; drop images here, or <span class="text-[#FFFFFF] underline decoration-[#444444] hover:decoration-[#FFFFFF]">browse files</span>
+            </p>
+            <p class="text-xs text-[#929292] mt-1.5">
+              Supports JPG, PNG, WebP, SVG, GIF, BMP &bull; Paste directly with <kbd class="px-2 py-0.5 text-[11px] bg-[#111111] rounded border border-[#242424] font-mono text-[#F5F5F5]">Ctrl + V</kbd>
             </p>
           </div>
+          <div class="flex flex-wrap gap-2 justify-center pt-2">
+            <span class="inline-flex items-center text-[11px] text-[#929292] bg-[#111111] px-2.5 py-1 rounded-full border border-[#242424]">
+              <i data-lucide="check" class="w-3 h-3 text-[#929292] mr-1"></i> No file limits
+            </span>
+            <span class="inline-flex items-center text-[11px] text-[#929292] bg-[#111111] px-2.5 py-1 rounded-full border border-[#242424]">
+              <i data-lucide="shield" class="w-3 h-3 text-[#929292] mr-1"></i> 100% Private (Client-side)
+            </span>
+            <span class="inline-flex items-center text-[11px] text-[#929292] bg-[#111111] px-2.5 py-1 rounded-full border border-[#242424]">
+              <i data-lucide="crop" class="w-3 h-3 text-[#929292] mr-1"></i> Visual Cropper Included
+            </span>
+          </div>
+        </div>
+      </div>
 
-          <!-- Page Orientation (Only shown when a fixed paper size is chosen) -->
-          <div id="orientationContainer" class="hidden">
-            <label class="block text-xs font-medium text-slate-300 mb-1.5">Page Orientation</label>
-            <div class="grid grid-cols-3 gap-2">
-              <button type="button" data-orientation="auto" class="orientation-btn active flex flex-col items-center justify-center p-2 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-300 text-xs font-medium">
-                <i data-lucide="wand-2" class="w-4 h-4 mb-1"></i> Auto
-              </button>
-              <button type="button" data-orientation="portrait" class="orientation-btn flex flex-col items-center justify-center p-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                <i data-lucide="file" class="w-4 h-4 mb-1"></i> Portrait
-              </button>
-              <button type="button" data-orientation="landscape" class="orientation-btn flex flex-col items-center justify-center p-2 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                <i data-lucide="file-minus" class="w-4 h-4 mb-1 rotate-90"></i> Landscape
-              </button>
+      <!-- Workspace View (Visible after images are uploaded) -->
+      <div id="workspaceSection" class="hidden mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <!-- Left 2 Cols: Image Grid and Toolbar -->
+        <div class="lg:col-span-2 space-y-4">
+          
+          <!-- Workspace Toolbar -->
+          <div class="bg-[#111111] border border-[#242424] p-3 sm:p-4 rounded-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center space-x-2">
+                <span id="fileCountBadge" class="text-xs font-semibold text-[#F5F5F5] bg-[#161616] border border-[#242424] px-2.5 py-1 rounded-lg font-mono">
+                  0 images
+                </span>
+                <span id="totalSizeBadge" class="text-xs text-[#929292] font-mono">
+                  (~0 KB)
+                </span>
+                <span id="estPdfSizeBadge" class="text-[11px] text-[#929292] font-mono hidden sm:inline bg-[#161616] px-2 py-0.5 rounded border border-[#242424]">
+                  Est. PDF: ~0 KB
+                </span>
+              </div>
+
+              <!-- Toolbar Action Buttons -->
+              <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <button type="button" id="addMoreBtn" class="inline-flex items-center text-xs font-medium bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] border border-[#242424] px-2.5 sm:px-3 py-1.5 rounded-lg transition-colors" title="Add more images">
+                  <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> Add More
+                </button>
+                <button type="button" id="toolbarPreviewBtn" class="inline-flex items-center text-xs font-semibold bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] px-3 py-1.5 rounded-lg transition-colors" title="Instant Full Document Preview">
+                  <i data-lucide="eye" class="w-3.5 h-3.5 mr-1"></i> Preview PDF
+                </button>
+                <button type="button" id="exportZipBtn" class="inline-flex items-center text-xs font-medium bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] border border-[#242424] px-2.5 py-1.5 rounded-lg transition-colors" title="Export all processed images as a ZIP archive">
+                  <i data-lucide="archive" class="w-3.5 h-3.5 mr-1 text-[#929292]"></i> ZIP
+                </button>
+                <button type="button" id="clearAllBtn" class="inline-flex items-center text-xs font-medium bg-[#161616] hover:bg-[#202020] text-[#EF4444] border border-[#242424] px-2.5 py-1.5 rounded-lg transition-colors" title="Remove all images">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 mr-1"></i> Clear
+                </button>
+              </div>
             </div>
-          </div>
 
-          <!-- Margins (Only shown when a fixed paper size is chosen) -->
-          <div id="marginContainer" class="hidden">
-            <label class="block text-xs font-medium text-slate-300 mb-1.5">Page Margins</label>
-            <div class="grid grid-cols-4 gap-2">
-              <button type="button" data-margin="0" class="margin-btn active flex items-center justify-center py-1.5 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-300 text-xs font-medium">
-                None (0)
-              </button>
-              <button type="button" data-margin="5" class="margin-btn flex items-center justify-center py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                5mm
-              </button>
-              <button type="button" data-margin="12" class="margin-btn flex items-center justify-center py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                12mm
-              </button>
-              <button type="button" data-margin="20" class="margin-btn flex items-center justify-center py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                20mm
-              </button>
-            </div>
-          </div>
+            <!-- Secondary Toolbar: Sorting & Bulk Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#242424] text-xs text-[#929292]">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] text-[#666666] mr-1">Sort:</span>
+                <button type="button" id="sortAzBtn" class="px-2 py-1 rounded bg-[#0D0D0D] hover:bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] transition-colors" title="Sort A to Z">A-Z</button>
+                <button type="button" id="sortZaBtn" class="px-2 py-1 rounded bg-[#0D0D0D] hover:bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] transition-colors" title="Sort Z to A">Z-A</button>
+                <button type="button" id="reverseBtn" class="px-2 py-1 rounded bg-[#0D0D0D] hover:bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] transition-colors" title="Reverse order">Reverse</button>
+                <button type="button" id="shuffleBtn" class="px-2 py-1 rounded bg-[#0D0D0D] hover:bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] transition-colors" title="Shuffle randomly">Shuffle</button>
+                <button type="button" id="rotateAllBtn" class="px-2 py-1 rounded bg-[#0D0D0D] hover:bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] transition-colors flex items-center space-x-1" title="Rotate all 90°">
+                  <i data-lucide="rotate-cw" class="w-3 h-3"></i>
+                  <span>Rotate All</span>
+                </button>
+              </div>
 
-          <!-- Image Fitting (Only shown for fixed paper sizes) -->
-          <div id="imageFitContainer" class="hidden">
-            <label for="imageFitSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Image Layout</label>
-            <select id="imageFitSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
-              <option value="contain" selected>Fit to Page (Maintain Aspect Ratio)</option>
-              <option value="stretch">Fill Entire Page (May Stretch)</option>
-            </select>
-          </div>
-
-          <!-- Page Background Color (Only shown for fixed paper sizes) -->
-          <div id="pageBgContainer" class="hidden">
-            <label class="block text-xs font-medium text-slate-300 mb-1.5">Page Background</label>
-            <div class="grid grid-cols-4 gap-2">
-              <button type="button" data-bg="#ffffff" class="bg-color-btn active flex items-center justify-center py-1.5 px-1 rounded-lg border border-brand-500 bg-brand-500/10 text-brand-300 text-xs font-medium">
-                <span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-400 mr-1.5 inline-block"></span> White
-              </button>
-              <button type="button" data-bg="#000000" class="bg-color-btn flex items-center justify-center py-1.5 px-1 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                <span class="w-2.5 h-2.5 rounded-full bg-black border border-slate-600 mr-1.5 inline-block"></span> Black
-              </button>
-              <button type="button" data-bg="#0f172a" class="bg-color-btn flex items-center justify-center py-1.5 px-1 rounded-lg border border-slate-700 bg-slate-900 hover:border-slate-600 text-slate-300 text-xs font-medium">
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-500 mr-1.5 inline-block"></span> Dark
-              </button>
-              <div class="flex items-center justify-center relative">
-                <input type="color" id="customBgColorPicker" value="#ffffff" class="w-full h-8 rounded-lg border border-slate-700 bg-slate-900 cursor-pointer p-0.5" title="Pick custom page background color">
+              <div class="text-[11px] text-[#666666] flex items-center">
+                <i data-lucide="grip-vertical" class="w-3.5 h-3.5 mr-1 text-[#444444]"></i>
+                <span>Drag cards to reorder</span>
               </div>
             </div>
           </div>
 
-          <!-- Compression / Quality -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <label for="qualitySelect" class="text-xs font-medium text-slate-300">Compression Quality</label>
-              <span id="qualityLabel" class="text-xs text-brand-400 font-mono">High (90%)</span>
-            </div>
-            <select id="qualitySelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
-              <option value="1.0">Original / Lossless (Largest file)</option>
-              <option value="0.9" selected>High Quality (90% - Recommended)</option>
-              <option value="0.75">Balanced (75% - Good compression)</option>
-              <option value="0.5">Compact (50% - Smallest file size)</option>
-            </select>
+          <!-- Sortable Images Grid -->
+          <div id="imagesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 min-h-[160px] pb-6">
+            <!-- Image cards injected dynamically here -->
           </div>
+        </div>
 
-          <!-- Color & Document Filters -->
-          <div>
-            <label for="filterSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Color &amp; Document Filter</label>
-            <select id="filterSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
-              <option value="none" selected>Original (Natural Colors)</option>
-              <option value="bw-doc">Document Scanner (B&amp;W High Contrast)</option>
-              <option value="grayscale">Grayscale (Clean Monochrome)</option>
-              <option value="boost">Vibrant (Enhanced Contrast)</option>
-            </select>
-          </div>
-
-          <!-- Optional Extras: Page Numbers & Watermark -->
-          <div class="pt-2 border-t border-slate-700/60 space-y-3">
-            <label class="flex items-center cursor-pointer select-none">
-              <input type="checkbox" id="addPageNumbers" class="w-4 h-4 rounded border-slate-700 text-brand-600 bg-slate-900 focus:ring-brand-500">
-              <span class="ml-2.5 text-xs text-slate-300">Add page numbering (e.g. Page 1 of 5)</span>
-            </label>
-
-            <!-- Watermark Toggle & Options -->
-            <label class="flex items-center cursor-pointer select-none">
-              <input type="checkbox" id="addWatermark" class="w-4 h-4 rounded border-slate-700 text-brand-600 bg-slate-900 focus:ring-brand-500">
-              <span class="ml-2.5 text-xs text-slate-300">Add text watermark</span>
-            </label>
-
-            <div id="watermarkControls" class="hidden space-y-2 pl-6 pt-1">
-              <input type="text" id="watermarkText" placeholder="e.g. CONFIDENTIAL or DRAFT" value="CONFIDENTIAL" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] text-slate-400">Opacity</span>
-                <select id="watermarkOpacity" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-[11px] text-slate-300 focus:outline-none focus:border-brand-500">
-                  <option value="0.15">15% (Subtle)</option>
-                  <option value="0.25" selected>25% (Standard)</option>
-                  <option value="0.45">45% (Bold)</option>
-                </select>
+        <!-- Right 1 Col: Comprehensive Settings Studio -->
+        <div class="space-y-4 sticky top-20">
+          
+          <!-- Studio Panel Container -->
+          <div class="bg-[#111111] border border-[#242424] rounded-xl overflow-hidden shadow-xl">
+            
+            <!-- Studio Header -->
+            <div class="p-4 border-b border-[#242424] flex items-center justify-between bg-[#0D0D0D]">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="sliders" class="w-4 h-4 text-[#929292]"></i>
+                <h3 class="text-xs font-semibold text-[#F5F5F5] tracking-wide">Studio Configuration</h3>
               </div>
+              <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#161616] text-[#929292] border border-[#242424]">Pro</span>
             </div>
-          </div>
 
-          <!-- Filename -->
-          <div>
-            <label for="pdfFileName" class="block text-xs font-medium text-slate-300 mb-1.5">PDF File Name</label>
-            <div class="relative">
-              <input type="text" id="pdfFileName" value="converted-document" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-3 pr-12 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
-              <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-mono">.pdf</span>
-            </div>
-          </div>
+            <!-- Accordion Controls -->
+            <div class="divide-y divide-[#242424] text-xs">
+              
+              <!-- Accordion Section 1: Page Sizing & Multi-Up Grid -->
+              <div class="accordion-item" id="accordion-sizing">
+                <button type="button" class="accordion-header w-full px-4 py-3 flex items-center justify-between text-left font-medium text-[#F5F5F5]">
+                  <span class="flex items-center"><i data-lucide="layout" class="w-3.5 h-3.5 mr-2 text-[#929292]"></i> Page Sizing &amp; Layout Grid</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transform transition-transform duration-200 accordion-arrow text-[#929292]"></i>
+                </button>
+                <div class="accordion-content p-4 space-y-3.5 bg-[#0D0D0D]">
+                  
+                  <!-- Page Sizing Selector -->
+                  <div>
+                    <label for="pageSizeSelect" class="block text-[11px] font-medium text-[#929292] mb-1">Page Format</label>
+                    <select id="pageSizeSelect" class="w-full px-2.5 py-1.5 text-xs text-[#F5F5F5]">
+                      <option value="fit" selected>Fit to Image (Exact Dimensions &bull; 0 Borders) ⭐</option>
+                      <option value="a4">A4 Document (210 × 297 mm)</option>
+                      <option value="letter">US Letter (8.5 × 11 in)</option>
+                      <option value="a3">A3 Presentation (297 × 420 mm)</option>
+                      <option value="legal">US Legal (8.5 × 14 in)</option>
+                      <option value="tabloid">Tabloid / Ledger (11 × 17 in)</option>
+                      <option value="idcard">ID Card / Badge (CR80 &bull; 85.6 × 54 mm)</option>
+                    </select>
+                    <p id="fitExplanation" class="text-[10px] text-[#929292] mt-1 flex items-center">
+                      <i data-lucide="check" class="w-3 h-3 mr-1 text-[#F5F5F5]"></i> Zero borders, exact original image dimensions.
+                    </p>
+                  </div>
 
-          <!-- Convert & Preview Buttons -->
-          <div class="pt-3 space-y-2.5">
-            <button id="generatePdfBtn" class="w-full bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0">
-              <i data-lucide="eye" class="w-5 h-5"></i>
-              <span id="generateBtnText">Preview & Convert to PDF</span>
-            </button>
-            <button id="directDownloadBtn" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold py-2.5 px-4 rounded-xl border border-slate-700 hover:border-slate-600 flex items-center justify-center space-x-2 transition-all text-xs">
-              <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
-              <span>Instant Download (Skip Preview)</span>
-            </button>
-          </div>
+                  <!-- Multi-Up Grid (Images per Page) -->
+                  <div>
+                    <label class="block text-[11px] font-medium text-[#929292] mb-1">Grid Layout (Per Page)</label>
+                    <div class="grid grid-cols-3 gap-1.5">
+                      <button type="button" data-grid="1" class="grid-layout-btn active py-1.5 text-[11px] font-medium">1-Up (Single)</button>
+                      <button type="button" data-grid="2" class="grid-layout-btn py-1.5 text-[11px] font-medium">2-Up (Dual)</button>
+                      <button type="button" data-grid="4" class="grid-layout-btn py-1.5 text-[11px] font-medium">4-Up (2×2)</button>
+                    </div>
+                  </div>
 
-          <!-- Progress Bar (hidden by default) -->
-          <div id="progressContainer" class="hidden space-y-2 pt-2">
-            <div class="flex items-center justify-between text-xs text-slate-400">
-              <span id="progressStatus">Building PDF...</span>
-              <span id="progressPercent">0%</span>
+                  <!-- Orientation (Hidden for pure fit mode) -->
+                  <div id="orientationContainer" class="hidden">
+                    <label class="block text-[11px] font-medium text-[#929292] mb-1">Page Orientation</label>
+                    <div class="grid grid-cols-3 gap-1.5">
+                      <button type="button" data-orientation="auto" class="orientation-btn active py-1.5 text-[11px]">Auto</button>
+                      <button type="button" data-orientation="portrait" class="orientation-btn py-1.5 text-[11px]">Portrait</button>
+                      <button type="button" data-orientation="landscape" class="orientation-btn py-1.5 text-[11px]">Landscape</button>
+                    </div>
+                  </div>
+
+                  <!-- Margins (Hidden for pure fit mode) -->
+                  <div id="marginContainer" class="hidden">
+                    <label class="block text-[11px] font-medium text-[#929292] mb-1">Page Margins</label>
+                    <div class="grid grid-cols-4 gap-1.5">
+                      <button type="button" data-margin="0" class="margin-btn active py-1 text-[10px]">0 mm</button>
+                      <button type="button" data-margin="5" class="margin-btn py-1 text-[10px]">5 mm</button>
+                      <button type="button" data-margin="12" class="margin-btn py-1 text-[10px]">12 mm</button>
+                      <button type="button" data-margin="20" class="margin-btn py-1 text-[10px]">20 mm</button>
+                    </div>
+                  </div>
+
+                  <!-- Image Fitting Mode -->
+                  <div id="imageFitContainer" class="hidden">
+                    <label for="imageFitSelect" class="block text-[11px] font-medium text-[#929292] mb-1">Image Fit</label>
+                    <select id="imageFitSelect" class="w-full px-2.5 py-1.5 text-xs text-[#F5F5F5]">
+                      <option value="contain" selected>Contain (Maintain Aspect Ratio)</option>
+                      <option value="cover">Cover / Fill Frame</option>
+                      <option value="stretch">Stretch to Frame</option>
+                    </select>
+                  </div>
+
+                  <!-- Page Background Color -->
+                  <div id="pageBgContainer" class="hidden">
+                    <label class="block text-[11px] font-medium text-[#929292] mb-1">Page Canvas Color</label>
+                    <div class="flex items-center space-x-2">
+                      <button type="button" data-bg="#ffffff" class="bg-color-btn active w-6 h-6 rounded-md bg-white border border-[#242424] shadow-sm" title="White"></button>
+                      <button type="button" data-bg="#080808" class="bg-color-btn w-6 h-6 rounded-md bg-[#080808] border border-[#242424] shadow-sm" title="Pure Black"></button>
+                      <button type="button" data-bg="#111111" class="bg-color-btn w-6 h-6 rounded-md bg-[#111111] border border-[#242424] shadow-sm" title="Dark Gray"></button>
+                      <input type="color" id="customBgColorPicker" value="#ffffff" class="w-6 h-6 rounded border border-[#242424] cursor-pointer bg-transparent" title="Custom Color">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Accordion Section 2: Document Scanner & Image Enhancements -->
+              <div class="accordion-item" id="accordion-filters">
+                <button type="button" class="accordion-header w-full px-4 py-3 flex items-center justify-between text-left font-medium text-[#F5F5F5]">
+                  <span class="flex items-center"><i data-lucide="sparkles" class="w-3.5 h-3.5 mr-2 text-[#929292]"></i> Scanner &amp; Filters Studio</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transform transition-transform duration-200 accordion-arrow text-[#929292]"></i>
+                </button>
+                <div class="accordion-content p-4 space-y-3 bg-[#0D0D0D]">
+                  
+                  <div>
+                    <label for="filterSelect" class="block text-[11px] font-medium text-[#929292] mb-1">Color Preset</label>
+                    <select id="filterSelect" class="w-full px-2.5 py-1.5 text-xs text-[#F5F5F5]">
+                      <option value="none" selected>Natural Colors (Original)</option>
+                      <option value="bw-doc">High-Contrast B&amp;W Document Scanner (Shadow Removal)</option>
+                      <option value="grayscale">Grayscale Monochrome</option>
+                      <option value="boost">Vibrant Contrast Boost</option>
+                      <option value="sepia">Sepia Vintage Document</option>
+                      <option value="invert">Invert Colors (Dark Mode Inverted)</option>
+                    </select>
+                  </div>
+
+                  <!-- Scanner Threshold Sensitivity Slider -->
+                  <div id="thresholdSliderContainer" class="hidden space-y-1">
+                    <div class="flex items-center justify-between text-[11px] text-[#929292]">
+                      <span>Scanner Sensitivity</span>
+                      <span id="thresholdVal" class="font-mono text-[#F5F5F5]">138</span>
+                    </div>
+                    <input type="range" id="scannerThreshold" min="60" max="210" value="138" class="w-full h-1 bg-[#1A1A1A] rounded-lg appearance-none cursor-pointer">
+                  </div>
+
+                  <!-- Live Brightness Slider -->
+                  <div class="space-y-1">
+                    <div class="flex items-center justify-between text-[11px] text-[#929292]">
+                      <span>Brightness</span>
+                      <span id="brightnessVal" class="font-mono text-[#F5F5F5]">100%</span>
+                    </div>
+                    <input type="range" id="brightnessSlider" min="50" max="150" value="100" class="w-full h-1 bg-[#1A1A1A] rounded-lg appearance-none cursor-pointer">
+                  </div>
+
+                  <!-- Live Contrast Slider -->
+                  <div class="space-y-1">
+                    <div class="flex items-center justify-between text-[11px] text-[#929292]">
+                      <span>Contrast</span>
+                      <span id="contrastVal" class="font-mono text-[#F5F5F5]">100%</span>
+                    </div>
+                    <input type="range" id="contrastSlider" min="50" max="180" value="100" class="w-full h-1 bg-[#1A1A1A] rounded-lg appearance-none cursor-pointer">
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Accordion Section 3: Watermark, Stamps & Headers -->
+              <div class="accordion-item" id="accordion-watermark">
+                <button type="button" class="accordion-header w-full px-4 py-3 flex items-center justify-between text-left font-medium text-[#F5F5F5]">
+                  <span class="flex items-center"><i data-lucide="stamp" class="w-3.5 h-3.5 mr-2 text-[#929292]"></i> Watermark, Header &amp; Footer</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transform transition-transform duration-200 accordion-arrow text-[#929292]"></i>
+                </button>
+                <div class="accordion-content p-4 space-y-3 bg-[#0D0D0D]">
+                  
+                  <label class="flex items-center cursor-pointer select-none">
+                    <input type="checkbox" id="addWatermark" class="w-3.5 h-3.5 rounded border-[#242424] bg-[#080808] text-white">
+                    <span class="ml-2 text-xs text-[#F5F5F5] font-medium">Add text watermark</span>
+                  </label>
+
+                  <div id="watermarkControls" class="hidden space-y-2.5 pl-5 pt-1">
+                    <input type="text" id="watermarkText" placeholder="e.g. CONFIDENTIAL or DRAFT" value="CONFIDENTIAL" class="w-full px-2.5 py-1.5 text-xs text-[#F5F5F5]">
+                    
+                    <div class="pt-0.5">
+                      <span class="text-[10px] text-[#929292] block mb-1">Quick Stamp Presets:</span>
+                      <div class="flex flex-wrap gap-1">
+                        <button type="button" class="stamp-preset-pill text-[10px] px-2 py-0.5 rounded bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-colors" data-stamp="CONFIDENTIAL">CONFIDENTIAL</button>
+                        <button type="button" class="stamp-preset-pill text-[10px] px-2 py-0.5 rounded bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-colors" data-stamp="DRAFT">DRAFT</button>
+                        <button type="button" class="stamp-preset-pill text-[10px] px-2 py-0.5 rounded bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-colors" data-stamp="APPROVED">APPROVED</button>
+                        <button type="button" class="stamp-preset-pill text-[10px] px-2 py-0.5 rounded bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-colors" data-stamp="URGENT">URGENT</button>
+                        <button type="button" class="stamp-preset-pill text-[10px] px-2 py-0.5 rounded bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-colors" data-stamp="COPY">COPY</button>
+                        <button type="button" class="stamp-preset-pill text-[10px] px-2 py-0.5 rounded bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] hover:border-[#383838] transition-colors" data-stamp="FINAL">FINAL</button>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <span class="text-[10px] text-[#929292] block mb-0.5">Opacity</span>
+                        <select id="watermarkOpacity" class="w-full px-2 py-1 text-[11px] text-[#F5F5F5]">
+                          <option value="0.10">10% (Subtle)</option>
+                          <option value="0.20" selected>20% (Standard)</option>
+                          <option value="0.35">35% (Medium)</option>
+                          <option value="0.55">55% (Bold)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <span class="text-[10px] text-[#929292] block mb-0.5">Pattern</span>
+                        <select id="watermarkPattern" class="w-full px-2 py-1 text-[11px] text-[#F5F5F5]">
+                          <option value="diagonal" selected>Single Diagonal</option>
+                          <option value="tile">Repeating Tile</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="pt-1 space-y-2 border-t border-[#242424]">
+                    <div>
+                      <label class="flex items-center cursor-pointer select-none">
+                        <input type="checkbox" id="addPageNumbers" class="w-3.5 h-3.5 rounded border-[#242424] bg-[#080808]">
+                        <span class="ml-2 text-xs text-[#F5F5F5]">Page numbering ("Page X of Y")</span>
+                      </label>
+                      
+                      <!-- Bates Stamping Prefix -->
+                      <div class="mt-1.5 pl-5">
+                        <label for="batesPrefixInput" class="block text-[10px] text-[#929292] mb-0.5">Bates Prefix / Exhibit Code (Optional)</label>
+                        <input type="text" id="batesPrefixInput" placeholder="e.g. DOC-, EXHIBIT-A-" class="w-full px-2 py-1 text-xs text-[#F5F5F5]">
+                      </div>
+                    </div>
+
+                    <label class="flex items-center cursor-pointer select-none">
+                      <input type="checkbox" id="addDateStamp" class="w-3.5 h-3.5 rounded border-[#242424] bg-[#080808]">
+                      <span class="ml-2 text-xs text-[#F5F5F5]">Date &amp; timestamp stamp</span>
+                    </label>
+
+                    <div>
+                      <label for="customHeaderText" class="block text-[10px] text-[#929292] mb-0.5">Custom Header Text (Optional)</label>
+                      <input type="text" id="customHeaderText" placeholder="e.g. Zova PDF Verified Document" class="w-full px-2.5 py-1 text-xs text-[#F5F5F5]">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Accordion Section 4: Security & Digital Signature -->
+              <div class="accordion-item" id="accordion-security">
+                <button type="button" class="accordion-header w-full px-4 py-3 flex items-center justify-between text-left font-medium text-[#F5F5F5]">
+                  <span class="flex items-center"><i data-lucide="lock" class="w-3.5 h-3.5 mr-2 text-[#929292]"></i> Security &amp; Signature</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transform transition-transform duration-200 accordion-arrow text-[#929292]"></i>
+                </button>
+                <div class="accordion-content p-4 space-y-3 bg-[#0D0D0D]">
+                  
+                  <div>
+                    <label for="pdfPasswordInput" class="block text-[11px] font-medium text-[#929292] mb-1">PDF User Password (Encryption)</label>
+                    <div class="relative">
+                      <input type="password" id="pdfPasswordInput" placeholder="Leave empty for unencrypted PDF" class="w-full pl-2.5 pr-8 py-1.5 text-xs text-[#F5F5F5]">
+                      <button type="button" id="togglePasswordVisBtn" class="absolute right-2 top-2 text-[#929292] hover:text-[#F5F5F5]">
+                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                    <p class="text-[10px] text-[#666666] mt-1">Recipients must enter this password to view the PDF.</p>
+                  </div>
+
+                  <div class="pt-2 border-t border-[#242424]">
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span class="text-[11px] font-medium text-[#F5F5F5]">Digital Signature Stamp</span>
+                      <button type="button" id="openSignatureModalBtn" class="inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded bg-[#161616] text-[#F5F5F5] border border-[#242424] hover:bg-[#202020]">
+                        <i data-lucide="pen-tool" class="w-3 h-3 mr-1"></i> Draw Signature
+                      </button>
+                    </div>
+                    <div id="signaturePreviewBox" class="hidden p-2 rounded bg-[#080808] border border-[#242424] flex items-center justify-between">
+                      <img id="signatureThumbnail" src="" alt="Signature" class="h-6 object-contain">
+                      <button type="button" id="removeSignatureBtn" class="text-[#EF4444] hover:text-red-300 text-[10px]">Remove</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Accordion Section 5: Compression & DPI Engine -->
+              <div class="accordion-item" id="accordion-compression">
+                <button type="button" class="accordion-header w-full px-4 py-3 flex items-center justify-between text-left font-medium text-[#F5F5F5]">
+                  <span class="flex items-center"><i data-lucide="gauge" class="w-3.5 h-3.5 mr-2 text-[#929292]"></i> Compression &amp; Target DPI</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transform transition-transform duration-200 accordion-arrow text-[#929292]"></i>
+                </button>
+                <div class="accordion-content p-4 space-y-3 bg-[#0D0D0D]">
+                  
+                  <div>
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                      <span class="font-medium text-[#929292]">Compression Quality</span>
+                      <span id="qualityLabel" class="text-[#F5F5F5] font-mono">90%</span>
+                    </div>
+                    <select id="qualitySelect" class="w-full px-2.5 py-1.5 text-xs text-[#F5F5F5]">
+                      <option value="1.0">Lossless / Original Quality (100%)</option>
+                      <option value="0.9" selected>High Quality (90% &bull; Recommended)</option>
+                      <option value="0.75">Balanced Web (75% Compression)</option>
+                      <option value="0.5">Compact (50% &bull; Email Friendly)</option>
+                      <option value="0.3">Ultra Compressed (30% &bull; Smallest Size)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="dpiSelect" class="block text-[11px] font-medium text-[#929292] mb-1">Target Resolution (DPI)</label>
+                    <select id="dpiSelect" class="w-full px-2.5 py-1.5 text-xs text-[#F5F5F5]">
+                      <option value="original" selected>Original Image Resolution</option>
+                      <option value="300">300 DPI (High-Res Print Quality)</option>
+                      <option value="150">150 DPI (Office &amp; Document Quality)</option>
+                      <option value="72">72 DPI (Web Screen Optimized)</option>
+                    </select>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Accordion Section 6: Document Metadata -->
+              <div class="accordion-item" id="accordion-metadata">
+                <button type="button" class="accordion-header w-full px-4 py-3 flex items-center justify-between text-left font-medium text-[#F5F5F5]">
+                  <span class="flex items-center"><i data-lucide="file-cog" class="w-3.5 h-3.5 mr-2 text-[#929292]"></i> PDF Metadata &amp; Properties</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 transform transition-transform duration-200 accordion-arrow text-[#929292]"></i>
+                </button>
+                <div class="accordion-content p-4 space-y-2.5 bg-[#0D0D0D]">
+                  <div>
+                    <label for="metaTitle" class="block text-[10px] text-[#929292] mb-0.5">Document Title</label>
+                    <input type="text" id="metaTitle" placeholder="My Document" class="w-full px-2.5 py-1 text-xs text-[#F5F5F5]">
+                  </div>
+                  <div>
+                    <label for="metaAuthor" class="block text-[10px] text-[#929292] mb-0.5">Author</label>
+                    <input type="text" id="metaAuthor" placeholder="e.g. Zova PDF User" class="w-full px-2.5 py-1 text-xs text-[#F5F5F5]">
+                  </div>
+                  <div>
+                    <label for="metaSubject" class="block text-[10px] text-[#929292] mb-0.5">Subject / Keywords</label>
+                    <input type="text" id="metaSubject" placeholder="PDF, Document, Scan" class="w-full px-2.5 py-1 text-xs text-[#F5F5F5]">
+                  </div>
+                  <label class="flex items-center cursor-pointer select-none pt-1">
+                    <input type="checkbox" id="stripExifCheck" checked class="w-3.5 h-3.5 rounded border-[#242424] bg-[#080808]">
+                    <span class="ml-2 text-[11px] text-[#929292]">Sanitize camera EXIF metadata (Privacy)</span>
+                  </label>
+                </div>
+              </div>
+
             </div>
-            <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden">
-              <div id="progressBar" class="bg-gradient-to-r from-brand-500 to-violet-500 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
+
+            <!-- Filename & CTA Action Footer -->
+            <div class="p-4 bg-[#0D0D0D] border-t border-[#242424] space-y-3">
+              <div>
+                <label for="pdfFileName" class="block text-[11px] font-medium text-[#929292] mb-1">Output File Name</label>
+                <div class="relative">
+                  <input type="text" id="pdfFileName" value="zova-pdf-document" class="w-full pl-3 pr-12 py-2 text-xs sm:text-sm text-[#F5F5F5]">
+                  <span class="absolute right-3 top-2 sm:top-2.5 text-xs text-[#666666] font-mono">.pdf</span>
+                </div>
+              </div>
+
+              <!-- Primary Actions -->
+              <div class="space-y-2 pt-1">
+                <button type="button" id="generatePdfBtn" class="w-full bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                  <span id="generateBtnText">Preview &amp; Convert to PDF</span>
+                </button>
+
+                <button type="button" id="directDownloadBtn" class="w-full bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] font-medium py-2.5 px-4 rounded-lg border border-[#242424] hover:border-[#383838] flex items-center justify-center space-x-2 transition-all text-xs">
+                  <i data-lucide="download" class="w-3.5 h-3.5 text-[#929292]"></i>
+                  <span>Instant One-Click Download</span>
+                </button>
+              </div>
+
+              <!-- Progress Bar -->
+              <div id="progressContainer" class="hidden space-y-2 pt-1">
+                <div class="flex items-center justify-between text-xs text-[#929292]">
+                  <span id="progressStatus">Building PDF...</span>
+                  <span id="progressPercent" class="font-mono text-[#F5F5F5]">0%</span>
+                </div>
+                <div class="w-full bg-[#080808] border border-[#242424] rounded-full h-1.5 overflow-hidden">
+                  <div id="progressBar" class="bg-[#F5F5F5] h-1.5 rounded-full transition-all duration-150" style="width: 0%"></div>
+                </div>
+              </div>
+
             </div>
+
           </div>
 
         </div>
+
       </div>
 
-    </div>
+    </section>
 
-    <!-- Feature Guarantee Highlights -->
-    <section class="mt-20 border-t border-slate-800 pt-12 pb-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center sm:text-left">
-        <div class="p-5 rounded-xl bg-slate-800/30 border border-slate-800">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-3 mx-auto sm:mx-0">
-            <i data-lucide="shield" class="w-5 h-5"></i>
-          </div>
-          <h3 class="text-base font-semibold text-white mb-1">100% Client-Side Privacy</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Your photos never touch a remote server or database. Conversion is executed entirely in your browser's memory using HTML5 Canvas and jsPDF.
-          </p>
-        </div>
-
-        <div class="p-5 rounded-xl bg-slate-800/30 border border-slate-800">
-          <div class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center mb-3 mx-auto sm:mx-0">
-            <i data-lucide="zap" class="w-5 h-5"></i>
-          </div>
-          <h3 class="text-base font-semibold text-white mb-1">Unlimited & Forever Free</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            No limits on the number of images, no daily quota, no email signup, and no watermarks placed on your documents.
-          </p>
-        </div>
-
-        <div class="p-5 rounded-xl bg-slate-800/30 border border-slate-800">
-          <div class="w-10 h-10 rounded-lg bg-violet-500/10 text-violet-400 flex items-center justify-center mb-3 mx-auto sm:mx-0">
-            <i data-lucide="move" class="w-5 h-5"></i>
-          </div>
-          <h3 class="text-base font-semibold text-white mb-1">Interactive Page Ordering</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Easily reorder pages with drag and drop, rotate individual images 90°, and choose between standard paper sizes or exact original image dimensions.
-          </p>
-        </div>
+    <!-- 4. Trust and Features Section -->
+    <section id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[#242424]">
+      
+      <div class="max-w-2xl mb-10">
+        <span class="text-[11px] font-semibold text-[#929292] uppercase tracking-widest block mb-2 font-mono">CLIENT-SIDE PRIVACY</span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F5F5]">Built for speed and zero compromises</h2>
+        <p class="text-xs sm:text-sm text-[#929292] mt-2">
+          Designed with a privacy-first architecture that runs entirely on your local device.
+        </p>
       </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="bg-[#111111] border border-[#242424] p-6 rounded-xl">
+          <div class="w-8 h-8 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-4">
+            <i data-lucide="shield" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] mb-2">100% Client-Side Processing</h3>
+          <p class="text-xs text-[#929292] leading-relaxed">
+            Your images and documents never leave your browser. All decoding, filtering, and PDF generation happen in local memory.
+          </p>
+        </div>
+
+        <div class="bg-[#111111] border border-[#242424] p-6 rounded-xl">
+          <div class="w-8 h-8 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-4">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] mb-2">No Limits or Paywalls</h3>
+          <p class="text-xs text-[#929292] leading-relaxed">
+            Completely free forever. No daily conversion limits, no watermarks forced on output, and no account signup required.
+          </p>
+        </div>
+
+        <div class="bg-[#111111] border border-[#242424] p-6 rounded-xl">
+          <div class="w-8 h-8 rounded-lg bg-[#080808] border border-[#242424] flex items-center justify-center text-[#F5F5F5] mb-4">
+            <i data-lucide="maximize" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-[#F5F5F5] mb-2">Pure 1:1 Borderless Fit</h3>
+          <p class="text-xs text-[#929292] leading-relaxed">
+            Default output matches the exact pixel dimensions of your uploaded images with zero letterboxing or awkward white margins.
+          </p>
+        </div>
+
+      </div>
+
     </section>
 
   </main>
 
-  <!-- High-Resolution Image Lightbox Modal for Instant Image Preview -->
-  <div id="imageLightboxModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-150">
-      <div class="px-5 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+  <!-- Built-In Visual Cropper Modal -->
+  <div id="cropperModal" class="fixed inset-0 z-50 hidden bg-[#080808]/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="modal-surface rounded-xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+      
+      <!-- Cropper Header -->
+      <div class="px-5 py-3.5 border-b border-[#242424] flex items-center justify-between bg-[#0D0D0D]">
         <div class="flex items-center space-x-2.5">
-          <div class="w-6 h-6 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center">
-            <i data-lucide="image" class="w-3.5 h-3.5"></i>
-          </div>
+          <i data-lucide="crop" class="w-4 h-4 text-[#F5F5F5]"></i>
           <div>
-            <h4 id="lightboxTitle" class="text-xs font-semibold text-white truncate max-w-xs sm:max-w-md">Image Preview</h4>
-            <p id="lightboxMeta" class="text-[11px] font-mono text-slate-400"></p>
+            <h3 class="text-xs font-semibold text-[#F5F5F5]">Visual Image Cropper</h3>
+            <p id="cropperSubtext" class="text-[10px] text-[#929292]">Select area to crop</p>
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <button id="lightboxRotateBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Rotate 90°">
+          <button type="button" id="cancelCropBtn" class="px-3 py-1.5 rounded-lg text-xs font-medium text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors">Cancel</button>
+          <button type="button" id="applyCropBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] transition-colors flex items-center space-x-1">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span>Apply Crop</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cropper Toolbar -->
+      <div class="px-5 py-2.5 bg-[#111111] border-b border-[#242424] flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center space-x-1.5">
+          <span class="text-[#929292] text-[11px] mr-1">Aspect Ratio:</span>
+          <button type="button" data-crop-aspect="free" class="crop-aspect-btn active px-2.5 py-1 text-[11px]">Freeform</button>
+          <button type="button" data-crop-aspect="1:1" class="crop-aspect-btn px-2.5 py-1 text-[11px]">1:1 Square</button>
+          <button type="button" data-crop-aspect="4:3" class="crop-aspect-btn px-2.5 py-1 text-[11px]">4:3 Photo</button>
+          <button type="button" data-crop-aspect="16:9" class="crop-aspect-btn px-2.5 py-1 text-[11px]">16:9 Wide</button>
+          <button type="button" data-crop-aspect="a4" class="crop-aspect-btn px-2.5 py-1 text-[11px]">A4 Ratio</button>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <button type="button" id="cropResetBtn" class="px-2.5 py-1 rounded-md bg-[#161616] text-[#929292] hover:text-[#F5F5F5] border border-[#242424] text-[11px]">Reset</button>
+        </div>
+      </div>
+
+      <!-- Cropper Workspace Area -->
+      <div id="cropperContainer" class="flex-1 bg-[#080808] p-4 overflow-hidden relative flex items-center justify-center select-none">
+        <div id="cropperStage" class="relative max-h-[65vh] max-w-full flex items-center justify-center">
+          <img id="cropperImg" src="" alt="Crop target" class="max-h-[65vh] max-w-full object-contain pointer-events-none">
+          <div id="cropBox" class="absolute border border-white bg-white/5 cursor-move touch-none">
+            <div class="crop-handle crop-nw" data-handle="nw"></div>
+            <div class="crop-handle crop-ne" data-handle="ne"></div>
+            <div class="crop-handle crop-sw" data-handle="sw"></div>
+            <div class="crop-handle crop-se" data-handle="se"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Digital Signature Pad Modal -->
+  <div id="signatureModal" class="fixed inset-0 z-50 hidden bg-[#080808]/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="modal-surface rounded-xl max-w-md w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-[#242424] pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="pen-tool" class="w-4 h-4 text-[#F5F5F5]"></i>
+          <h3 class="text-xs font-semibold text-[#F5F5F5]">Draw Digital Signature</h3>
+        </div>
+        <button type="button" id="closeSignatureModalBtn" class="text-[#929292] hover:text-[#F5F5F5]">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-[#929292]">Draw your signature below using mouse or touchscreen:</p>
+      
+      <div class="bg-white rounded-lg border border-[#242424] overflow-hidden relative">
+        <canvas id="signatureCanvas" width="400" height="160" class="w-full h-36 cursor-crosshair touch-none"></canvas>
+      </div>
+
+      <div class="flex items-center justify-between pt-1">
+        <button type="button" id="clearSignatureBtn" class="px-3 py-1.5 rounded-lg text-xs font-medium text-[#929292] hover:text-[#F5F5F5] bg-[#161616] hover:bg-[#202020] border border-[#242424]">
+          Clear Canvas
+        </button>
+        <button type="button" id="saveSignatureBtn" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808]">
+          Apply to Document
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 100+ Features Directory Hub Modal -->
+  <div id="featuresHubModal" class="fixed inset-0 z-50 hidden bg-[#080808]/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="modal-surface rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-[#242424] flex items-center justify-between bg-[#0D0D0D]">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-[#000000] border border-[#242424] flex items-center justify-center p-0.5 shadow-sm">
+            <img src="logo.png?v=5" alt="Zova PDF" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="text-sm font-semibold text-[#F5F5F5]">Features Directory</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#161616] text-[#929292] border border-[#242424]">130+ Features</span>
+            </div>
+            <p class="text-xs text-[#929292]">Everything Zova PDF supports natively in your browser.</p>
+          </div>
+        </div>
+        <button type="button" id="closeFeaturesHubBtn" class="p-1.5 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Search & Category Filters -->
+      <div class="p-4 border-b border-[#242424] bg-[#0A0A0A] space-y-3">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-[#666666]"></i>
+          <input type="text" id="featureSearchInput" placeholder="Search features (e.g. crop, watermark, scanner, password, grid, DPI)..." class="w-full pl-9 pr-4 py-2 text-xs">
+        </div>
+        
+        <div id="featureCategoryPills" class="flex flex-wrap gap-1.5 text-xs">
+          <button type="button" data-cat="all" class="feat-cat-pill active px-2.5 py-1 text-[11px]">All (130+)</button>
+          <button type="button" data-cat="ingestion" class="feat-cat-pill px-2.5 py-1 text-[11px]">Input &amp; Formats (10)</button>
+          <button type="button" data-cat="crop" class="feat-cat-pill px-2.5 py-1 text-[11px]">Crop &amp; Edit (15)</button>
+          <button type="button" data-cat="scanner" class="feat-cat-pill px-2.5 py-1 text-[11px]">Scanner &amp; Filters (12)</button>
+          <button type="button" data-cat="grid" class="feat-cat-pill px-2.5 py-1 text-[11px]">Layouts &amp; Grids (16)</button>
+          <button type="button" data-cat="security" class="feat-cat-pill px-2.5 py-1 text-[11px]">Security &amp; Signature (10)</button>
+          <button type="button" data-cat="watermark" class="feat-cat-pill px-2.5 py-1 text-[11px]">Watermarks &amp; Stamps (12)</button>
+          <button type="button" data-cat="compression" class="feat-cat-pill px-2.5 py-1 text-[11px]">DPI &amp; Compression (8)</button>
+          <button type="button" data-cat="export" class="feat-cat-pill px-2.5 py-1 text-[11px]">Preview &amp; Export (20+)</button>
+        </div>
+      </div>
+
+      <!-- Feature Grid List -->
+      <div id="featuresListContainer" class="flex-1 overflow-y-auto p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs bg-[#080808]">
+        <!-- Feature items rendered dynamically -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Single Image High-Resolution Lightbox Modal -->
+  <div id="imageLightboxModal" class="fixed inset-0 z-50 hidden bg-[#080808]/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="modal-surface rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-150">
+      <div class="px-5 py-3 border-b border-[#242424] flex items-center justify-between bg-[#0D0D0D]">
+        <div class="flex items-center space-x-2.5">
+          <i data-lucide="image" class="w-4 h-4 text-[#929292]"></i>
+          <div>
+            <h4 id="lightboxTitle" class="text-xs font-semibold text-[#F5F5F5] truncate max-w-xs sm:max-w-md">Image Preview</h4>
+            <p id="lightboxMeta" class="text-[10px] font-mono text-[#929292]"></p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button type="button" id="lightboxDownloadBtn" class="p-1.5 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Download High-Res Snapshot (PNG/JPG)">
+            <i data-lucide="download" class="w-4 h-4"></i>
+          </button>
+          <button type="button" id="lightboxCropBtn" class="p-1.5 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Open Visual Cropper">
+            <i data-lucide="crop" class="w-4 h-4"></i>
+          </button>
+          <button type="button" id="lightboxRotateBtn" class="p-1.5 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Rotate 90° (R)">
             <i data-lucide="rotate-cw" class="w-4 h-4"></i>
           </button>
-          <button id="closeLightboxBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Close Preview">
+          <button type="button" id="closeLightboxBtn" class="p-1.5 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Close Preview (Esc)">
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
-      <div class="flex-1 bg-slate-950 p-4 overflow-auto flex items-center justify-center">
-        <img id="lightboxImg" src="" alt="Full preview" class="max-h-[70vh] max-w-full object-contain rounded-lg shadow-xl transition-transform duration-200">
+      <div class="flex-1 bg-[#080808] p-4 overflow-auto flex items-center justify-center">
+        <img id="lightboxImg" src="" alt="Full preview" class="max-h-[70vh] max-w-full object-contain rounded-lg transition-transform duration-200">
       </div>
     </div>
   </div>
 
   <!-- Custom Themed PDF Preview Modal -->
-  <div id="previewModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-5xl w-full h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+  <div id="previewModal" class="fixed inset-0 z-50 hidden bg-[#080808]/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="modal-surface rounded-xl max-w-5xl w-full h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
       
       <!-- Modal Header -->
-      <div class="px-5 py-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/95">
+      <div class="px-5 py-3.5 border-b border-[#242424] flex flex-wrap items-center justify-between gap-3 bg-[#0D0D0D]">
         <div class="flex items-center space-x-3">
-          <img src="logo.png" alt="Zenvixa Logo" class="w-8 h-8 rounded-xl object-contain shadow-sm">
+          <img src="logo.png?v=5" alt="Zova PDF Logo" class="w-6 h-6 rounded-md object-contain">
           <div>
-            <h3 class="text-sm font-semibold text-white">Document Preview</h3>
-            <p id="previewModalSubtext" class="text-xs text-slate-400">1 page • Ready to save</p>
+            <h3 class="text-xs font-semibold text-[#F5F5F5]">Document Preview</h3>
+            <p id="previewModalSubtext" class="text-[10px] text-[#929292]">1 page • Ready to save</p>
           </div>
         </div>
 
         <!-- Custom Viewer Controls (Navigation & Zoom) -->
-        <div class="flex items-center space-x-1.5 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+        <div class="flex items-center space-x-1.5 bg-[#111111] px-3 py-1.5 rounded-lg border border-[#242424]">
           <!-- Page Nav -->
-          <button id="prevPageBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 transition-colors" title="Previous Page">
+          <button type="button" id="prevPageBtn" class="p-1 rounded text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] disabled:opacity-30 transition-colors" title="Previous Page (←)">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
-          <span id="pageNavIndicator" class="text-xs font-mono text-slate-300 px-1 select-none">1 / 1</span>
-          <button id="nextPageBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-30 transition-colors" title="Next Page">
+          <span id="pageNavIndicator" class="text-xs font-mono text-[#F5F5F5] px-1 select-none">1 / 1</span>
+          <button type="button" id="nextPageBtn" class="p-1 rounded text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] disabled:opacity-30 transition-colors" title="Next Page (→)">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
 
-          <div class="h-4 w-px bg-slate-700 mx-1"></div>
+          <div class="h-3 w-px bg-[#242424] mx-1"></div>
 
           <!-- Zoom -->
-          <button id="zoomOutBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Zoom Out">
+          <button type="button" id="zoomOutBtn" class="p-1 rounded text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Zoom Out (-)">
             <i data-lucide="zoom-out" class="w-4 h-4"></i>
           </button>
-          <span id="zoomIndicator" class="text-xs font-mono text-slate-300 px-1 select-none">100%</span>
-          <button id="zoomInBtn" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Zoom In">
+          <span id="zoomIndicator" class="text-xs font-mono text-[#F5F5F5] px-1 select-none">100%</span>
+          <button type="button" id="zoomInBtn" class="p-1 rounded text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Zoom In (+)">
             <i data-lucide="zoom-in" class="w-4 h-4"></i>
           </button>
-          <button id="fitWidthBtn" class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors" title="Fit to window">
+          <button type="button" id="fitWidthBtn" class="px-2 py-0.5 rounded text-[11px] font-medium text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors" title="Fit to window">
             Fit
           </button>
         </div>
 
         <!-- Right action buttons -->
         <div class="flex items-center space-x-2">
-          <button id="modalDownloadBtn" class="inline-flex items-center bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-lg shadow-brand-600/25 transition-all">
-            <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Download PDF
+          <button type="button" id="modalDownloadBtn" class="inline-flex items-center bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+            <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Download PDF
           </button>
-          <button id="modalCloseBtn" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors" title="Close Preview">
+          <button type="button" id="modalCloseBtn" class="p-1.5 text-[#929292] hover:text-[#F5F5F5] rounded-lg hover:bg-[#161616] transition-colors" title="Close Preview (Esc)">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
 
-      <!-- Modal Body (Custom Themed Canvas Container) -->
-      <div id="pdfViewerContainer" class="flex-1 bg-slate-950 p-6 overflow-auto relative flex items-center justify-center">
+      <!-- Modal Body -->
+      <div id="pdfViewerContainer" class="flex-1 bg-[#080808] p-6 overflow-auto relative flex items-center justify-center">
         <div id="canvasWrapper" class="relative transition-all duration-150 flex items-center justify-center my-auto">
-          <canvas id="pdfCanvas" class="rounded-lg shadow-2xl border border-slate-800/80 transition-shadow"></canvas>
+          <canvas id="pdfCanvas" class="rounded-lg shadow-2xl border border-[#242424]"></canvas>
         </div>
-        <!-- Loading spinner -->
-        <div id="viewerLoadingSpinner" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/75 hidden">
-          <div class="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs text-slate-400 mt-2 font-medium">Rendering PDF page...</p>
+        <div id="viewerLoadingSpinner" class="absolute inset-0 flex flex-col items-center justify-center bg-[#080808]/75 hidden">
+          <div class="w-8 h-8 border-2 border-[#FFFFFF] border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-xs text-[#929292] mt-2 font-medium">Rendering PDF page...</p>
         </div>
       </div>
 
@@ -489,47 +1518,138 @@
   </div>
 
   <!-- Changelog / Daily Updates Modal -->
-  <div id="changelogModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200 space-y-5">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+  <div id="changelogModal" class="fixed inset-0 z-50 hidden bg-[#080808]/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="modal-surface rounded-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-[#242424] pb-3">
         <div class="flex items-center space-x-2.5">
-          <img src="logo.png" alt="Zenvixa Logo" class="w-8 h-8 rounded-xl object-contain shadow-sm">
+          <img src="logo.png?v=5" alt="Zova PDF Logo" class="w-6 h-6 rounded-md object-contain">
           <div>
-            <h3 class="text-base font-bold text-white">Daily Feature Releases</h3>
-            <p class="text-xs text-slate-400">Zenvixa PDF Automated Updates</p>
+            <h3 class="text-sm font-semibold text-[#F5F5F5]">Release Changelog</h3>
+            <p class="text-[10px] text-[#929292]">Zova PDF Workspace Updates</p>
           </div>
         </div>
-        <button id="closeChangelogBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+        <button type="button" id="closeChangelogBtn" class="p-1.5 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-1 text-xs">
-        <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-2">
+      <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1 text-xs">
+        <div class="p-3.5 rounded-lg bg-[#0D0D0D] border border-[#242424] space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-white text-sm">Release v1.2 &bull; Active Today</span>
-            <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">Installed</span>
+            <span class="font-semibold text-[#F5F5F5] text-xs">Release v2.4 &bull; Rebranded to Zova PDF</span>
+            <span class="px-2 py-0.5 rounded-full bg-[#161616] text-[#F5F5F5] text-[10px] font-mono border border-[#242424]">Active</span>
           </div>
-          <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
-            <li><strong>Document Scanner Filter</strong>: Turn camera photos of paperwork, notes, and receipts into crisp, clean B&amp;W document scans.</li>
-            <li><strong>Dual Live Previews Everywhere</strong>: High-resolution card lightbox preview, instant PDF preview in gallery toolbar, and the interactive full-page PDF.js viewer.</li>
-            <li><strong>Text Watermark Tool</strong>: Stamp semi-transparent custom watermarks (CONFIDENTIAL, DRAFT, copyright) diagonally across all pages.</li>
-            <li><strong>One-Click Smart Sorting</strong>: Instant Sort A-Z and Reverse Order in gallery toolbar.</li>
-            <li><strong>White Theme by Default</strong>: Clean high-contrast white aesthetic with seamless dark mode switcher.</li>
-            <li><strong>Automated Daily Schedule</strong>: Cron standing job active every morning to deploy new features.</li>
+          <ul class="space-y-1 text-[#929292] list-disc list-inside text-[11px]">
+            <li><strong>Zova PDF Brand</strong>: Official rebrand to Zova PDF across entire workspace and documents.</li>
+            <li><strong>Command Palette</strong>: Instant Cmd+K search across all 29 tools.</li>
+            <li><strong>Categorized Tool Tabs</strong>: 1-click filtering by Layout, Filters, Security, Stamps, Optimization.</li>
+            <li><strong>Keyboard Shortcuts</strong>: Full cheatsheet accessible with '?'.</li>
           </ul>
-        </div>
-
-        <div class="p-3.5 rounded-xl bg-slate-800/30 border border-slate-800 space-y-1.5 text-slate-400">
-          <span class="font-semibold text-slate-300 text-[11px] block">Upcoming Next on Daily Cron:</span>
-          <p>&bull; Client-side PDF Password Protection &amp; AES encryption</p>
-          <p>&bull; Multi-page extraction and batch Zip download</p>
-          <p>&bull; OCR text search layer integration</p>
         </div>
       </div>
 
-      <button id="dismissChangelogBtn" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors">
-        Awesome, continue!
+      <button type="button" id="dismissChangelogBtn" class="w-full bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] font-semibold py-2 rounded-lg text-xs transition-colors">
+        Dismiss
+      </button>
+    </div>
+  </div>
+
+  <!-- Raycast / Linear Style Command Palette Modal -->
+  <div id="commandPaletteModal" class="fixed inset-0 z-50 hidden bg-[#080808]/80 backdrop-blur-md flex items-start justify-center pt-16 sm:pt-24 p-4">
+    <div class="cmd-palette rounded-xl max-w-xl w-full overflow-hidden flex flex-col border border-[#282828] shadow-2xl">
+      <!-- Search Input Header -->
+      <div class="flex items-center px-4 py-3 border-b border-[#242424] bg-[#0D0D0D]">
+        <i data-lucide="search" class="w-4 h-4 text-[#929292] mr-3 flex-shrink-0"></i>
+        <input type="text" id="commandPaletteInput" placeholder="Type a tool name or action (e.g. scanner, crop, encrypt, bates)..." class="w-full bg-transparent text-[#F5F5F5] placeholder-[#666666] text-xs sm:text-sm focus:outline-none" autocomplete="off" spellcheck="false">
+        <kbd class="text-[10px] font-mono bg-[#161616] text-[#888888] border border-[#2E2E2E] px-1.5 py-0.5 rounded ml-2">ESC</kbd>
+      </div>
+
+      <!-- Command List -->
+      <div id="commandPaletteList" class="max-h-[380px] overflow-y-auto p-2 space-y-1 divide-y divide-[#1A1A1A]">
+        <!-- Dynamic command items rendered by JS -->
+      </div>
+
+      <!-- Footer Hotkey Hints -->
+      <div class="flex items-center justify-between px-4 py-2.5 border-t border-[#242424] bg-[#0A0A0A] text-[10px] text-[#666666] font-mono">
+        <div class="flex items-center space-x-3">
+          <span><kbd class="bg-[#141414] px-1.5 py-0.5 rounded border border-[#242424] text-[#888888]">↑</kbd> <kbd class="bg-[#141414] px-1.5 py-0.5 rounded border border-[#242424] text-[#888888]">↓</kbd> Navigate</span>
+          <span><kbd class="bg-[#141414] px-1.5 py-0.5 rounded border border-[#242424] text-[#888888]">↵</kbd> Select</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#A7F3D0]"></span>
+          <span>Zova PDF Pro</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Cheatsheet Modal -->
+  <div id="shortcutsModal" class="fixed inset-0 z-50 hidden bg-[#080808]/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="modal-surface rounded-xl max-w-md w-full p-6 space-y-4 border border-[#242424] shadow-2xl bg-[#0D0D0D]">
+      <div class="flex items-center justify-between border-b border-[#242424] pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="keyboard" class="w-4 h-4 text-[#F5F5F5]"></i>
+          <h3 class="text-sm font-semibold text-[#F5F5F5]">Keyboard Shortcuts</h3>
+        </div>
+        <button type="button" id="closeShortcutsBtn" class="p-1 rounded-lg text-[#929292] hover:text-[#F5F5F5] hover:bg-[#161616] transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">Open Command Palette</span>
+          <div class="flex items-center space-x-1">
+            <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">⌘K</kbd>
+            <span class="text-[#666]">/</span>
+            <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">Ctrl+K</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">Compile &amp; Preview PDF</span>
+          <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">Ctrl+Enter</kbd>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">Paste Image from Clipboard</span>
+          <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">Ctrl+V</kbd>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">Show Shortcuts Cheatsheet</span>
+          <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">?</kbd>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">Rotate Image in Lightbox</span>
+          <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">R</kbd>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">PDF Viewer Page Navigation</span>
+          <div class="flex items-center space-x-1">
+            <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">←</kbd>
+            <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">→</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5 border-b border-[#1A1A1A]">
+          <span class="text-[#929292]">PDF Viewer Zoom In / Out</span>
+          <div class="flex items-center space-x-1">
+            <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">+</kbd>
+            <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">-</kbd>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between py-1.5">
+          <span class="text-[#929292]">Close Any Modal</span>
+          <kbd class="font-mono bg-[#161616] text-[#F5F5F5] border border-[#282828] px-2 py-0.5 rounded text-[10px]">ESC</kbd>
+        </div>
+      </div>
+
+      <button type="button" id="dismissShortcutsBtn" class="w-full bg-[#F5F5F5] hover:bg-[#E5E5E5] text-[#080808] font-semibold py-2 rounded-lg text-xs transition-colors">
+        Got it
       </button>
     </div>
   </div>
@@ -538,14 +1658,29 @@
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-800 bg-slate-900/50 py-6 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center justify-center space-x-2.5">
-        <img src="logo.png" alt="Zenvixa PDF" class="w-6 h-6 rounded-md object-contain">
-        <span class="font-semibold text-slate-700 dark:text-slate-300">Zenvixa &bull; PDF Tool</span>
-        <span>&mdash; 100% Free &amp; Open Source Image to PDF Converter</span>
+  <footer class="border-t border-[#242424] bg-[#080808] py-8 text-xs text-[#929292]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2.5">
+        <img src="logo.png?v=5" alt="Zova PDF" class="w-5 h-5 rounded object-contain">
+        <span class="font-medium text-[#F5F5F5]">Zova PDF</span>
+        <span class="text-[#666666]">&bull;</span>
+        <span class="text-[#929292]">Your Minimal PDF Workspace</span>
       </div>
-      <p class="flex items-center justify-center">
+
+      <div class="flex items-center space-x-4">
+        <button type="button" id="footerShortcutsBtn" class="flex items-center space-x-1.5 text-[#929292] hover:text-[#F5F5F5] transition-colors cursor-pointer">
+          <i data-lucide="keyboard" class="w-3.5 h-3.5"></i>
+          <span>Shortcuts</span>
+          <kbd class="font-mono text-[9px] bg-[#161616] text-[#888888] border border-[#282828] px-1 rounded">?</kbd>
+        </button>
+        <button type="button" id="footerCommandBtn" class="flex items-center space-x-1.5 text-[#929292] hover:text-[#F5F5F5] transition-colors cursor-pointer">
+          <i data-lucide="command" class="w-3.5 h-3.5"></i>
+          <span>Command Palette</span>
+          <kbd class="font-mono text-[9px] bg-[#161616] text-[#888888] border border-[#282828] px-1 rounded">⌘K</kbd>
+        </button>
+      </div>
+
+      <p class="text-[#666666]">
         Zero tracking &bull; 100% Client-Side &bull; Works Offline
       </p>
     </div>
